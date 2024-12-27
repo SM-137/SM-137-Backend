@@ -1,4 +1,4 @@
-package com.solux.sm137.infra.apiPayload;
+package com.solux.sm137.infra.apiPayload.base;
 
 import lombok.Builder;
 import lombok.Getter;

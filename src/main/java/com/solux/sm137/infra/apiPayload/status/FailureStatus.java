@@ -7,10 +7,12 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum SuccessStatus implements BaseCode {
-    _OK(200, "요청에 성공했습니다."),
-    _MODIFY_USER_INFO_SUCCESS(200, "개인정보수정에 성공하였습니다."),
-    _GET_USER_INFO_SUCCESS(200, "회원정보 조회에 성공하였습니다."),
+public enum FailureStatus implements BaseCode {
+    _BAD_REQUEST(400, "잘못된 요청입니다."),
+    _USER_NOT_FOUND(400, "존재하지 않는 회원입니다."),
+    _UNAUTHORIZED(401, "인증되지 않은 사용자입니다."),
+    _NOT_FOUND(404, "요청한 자원을 찾을 수 없습니다."),
+    _INTERNAL_SERVER_ERROR(500, "서버 내부 오류가 발생했습니다."),
     ;
 
     private final int code;
