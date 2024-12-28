@@ -43,4 +43,10 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<CommentLike> commentLikes;
 
+    // 유저 정보 수정 로직
+    public void modifyUser(String number, String department) {
+        this.number = number;
+        this.department = department;
+    }
+
 }
