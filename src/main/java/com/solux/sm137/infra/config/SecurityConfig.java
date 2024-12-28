@@ -19,6 +19,7 @@ public class SecurityConfig {
     private static final String[] ALLOWED_URIS = {
             "/api/v1/user",
             "/api/v1/user/modify",
+            "/api/v1/user/complaint"
     };
 
     @Bean
