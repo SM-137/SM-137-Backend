@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class MyComplaintResponse {
+public class ScrapResponse {
     private Long complaintId;
     private String complaintTitle;
     private ComplaintStatus complaintStatus;
