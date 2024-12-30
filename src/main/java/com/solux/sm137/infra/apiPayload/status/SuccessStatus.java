@@ -13,7 +13,8 @@ public enum SuccessStatus implements BaseCode {
     _GET_USER_INFO_SUCCESS(200, "회원정보 조회에 성공하였습니다."),
     _GET_MY_COMPLAINTS_SUCCESS(200, "내 민원 리스트 조회에 성공하였습니다."),
     _GET_RESULTS_SUCCESS(200, "결과 조회에 성공하였습니다."),
-    _GET_SCRAPS_SUCCESS(200, "스크랩 리스트 조회에 성공하였습니다.")
+    _GET_SCRAPS_SUCCESS(200, "스크랩 리스트 조회에 성공하였습니다."),
+    _USER_DELETED(200,"회원탈퇴에 성공하였습니다.")
     ;
 
     private final int code;
