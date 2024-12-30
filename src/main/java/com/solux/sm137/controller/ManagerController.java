@@ -24,9 +24,9 @@ public class ManagerController {
     }
 
 
-    @GetMapping("/complaint/{id}")
-    public ApiResponse<ComplaintDetailResponse> getComplaintDetail(@PathVariable Long id) {
-        ComplaintDetailResponse complaintDetail = complaintService.getComplaintDetail(id);
+    @GetMapping("/{complaintId}")
+    public ApiResponse<ComplaintDetailResponse> getComplaintDetail(@PathVariable Long complaintId) {
+        ComplaintDetailResponse complaintDetail = complaintService.getComplaintDetail(complaintId);
         if (complaintDetail != null) {
             return ApiResponse.onSuccess(complaintDetail, SuccessStatus._GET_COMPLAINTS_DETAILS_SUCCESS);
         } else {
