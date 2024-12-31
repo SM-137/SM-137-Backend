@@ -3,7 +3,7 @@ package com.solux.sm137.service;
 import com.solux.sm137.domain.Complaint;
 import com.solux.sm137.domain.Scrap;
 import com.solux.sm137.domain.User;
-import com.solux.sm137.dto.request.ScrapRequest;
+import com.solux.sm137.dto.request.ComplaintRequest;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.repository.ComplaintRepository;
@@ -22,7 +22,7 @@ public class ComplaintService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void scrapComplaint(String token, ScrapRequest request ) {
+    public void scrapComplaint(String token, ComplaintRequest request ) {
 
         if (token == null || token.isEmpty()) {
             throw new IllegalArgumentException("Token is empty");
