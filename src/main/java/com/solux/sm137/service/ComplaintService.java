@@ -1,5 +1,6 @@
 package com.solux.sm137.service;
 
+import com.solux.sm137.domain.Complaint;
 import com.solux.sm137.domain.Scrap;
 import com.solux.sm137.domain.User;
 import com.solux.sm137.dto.request.ScrapRequest;
@@ -28,7 +29,7 @@ public class ComplaintService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void scrapComplaint(String token, ScrapRequest request ) {
+    public void scrapComplaint(String token, ScrapRequest request) {
 
         if (token == null || token.isEmpty()) {
             throw new IllegalArgumentException("Token is empty");
@@ -40,7 +41,7 @@ public class ComplaintService {
         Scrap scrap = new Scrap(user, complaint);
         scrapRepository.save(scrap);
     }
-  
+
     public List<ManagerComplaintResponse> getComplaintList() {
         // 모든 민원 리스트를 조회
         List<Complaint> complaints = complaintRepository.findAll();
@@ -58,7 +59,7 @@ public class ComplaintService {
                 .collect(Collectors.toList()); // Stream을 List로 변환
     }
 
-     public ComplaintDetailResponse getComplaintDetail(Long complaintId) {
+    public ComplaintDetailResponse getComplaintDetail(Long complaintId) {
         // 민원 상세 조회
         Optional<Complaint> complaintOptional = complaintRepository.findById(complaintId);
 
@@ -87,4 +88,5 @@ public class ComplaintService {
                 complaint.getAnswer(),
                 List.of(userInfoResponse)
         );
+    }
 }
