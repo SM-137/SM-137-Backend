@@ -16,8 +16,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @AllArgsConstructor
 public class SecurityConfig {
 
-    private static final String[] ALLOWED_URIS = {
-            "/api/v1/user/**"
+    private static final String[] ALLOWED_URIS 
+            "/api/v1/user/**", "/api/manager/complaint/**", "/api/complaints/**"
     };
 
     @Bean
