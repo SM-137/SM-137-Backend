@@ -3,7 +3,9 @@ package com.solux.sm137.service;
 import com.solux.sm137.domain.Complaint;
 import com.solux.sm137.domain.Scrap;
 import com.solux.sm137.domain.User;
+import com.solux.sm137.dto.request.ComplaintAnswerRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
+import com.solux.sm137.dto.response.ComplaintAnswerResponse;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.repository.ComplaintRepository;
@@ -88,5 +90,18 @@ public class ComplaintService {
                 complaint.getAnswer(),
                 List.of(userInfoResponse)
         );
+    }
+
+    @Transactional
+    public ComplaintAnswerResponse registerComplaintAnswer(Long complaintId, ComplaintAnswerRequest request) {
+        Complaint complaint = complaintRepository.findById(complaintId)
+                .orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+
+        // 답변 등록
+        complaint.setAnswer(request.getAnswerContent());
+        complaint.setStatus(request.getComplaintStatus());
+        complaintRepository.save(complaint);
+
+        return new ComplaintAnswerResponse(complaint.getId().toString(), complaint.getAnswer());
     }
 }
