@@ -6,7 +6,7 @@ import com.solux.sm137.domain.User;
 import com.solux.sm137.dto.request.CategoryRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
 import com.solux.sm137.dto.response.CategoryResponse;
-import com.solux.sm137.dto.response.ComplaintDetailResponse;
+import com.solux.sm137.dto.response.UserComplaintDetailResponse;
 import com.solux.sm137.dto.response.KeywordSearchResponse;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
@@ -43,9 +43,9 @@ public class ComplaintService {
     }
 
     @Transactional
-    public ComplaintDetailResponse getComplaintDetail(Long complaintId) {
+    public UserComplaintDetailResponse getUserComplaintDetail(Long complaintId) {
         Complaint complaint = complaintRepository.findById(complaintId).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
-        return new ComplaintDetailResponse(
+        return new UserComplaintDetailResponse(
                 complaint.getId(),
                 complaint.getStatus(),
                 complaint.getTitle(),

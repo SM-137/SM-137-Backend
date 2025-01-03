@@ -3,7 +3,7 @@ package com.solux.sm137.controller;
 import com.solux.sm137.dto.request.CategoryRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
 import com.solux.sm137.dto.response.CategoryResponse;
-import com.solux.sm137.dto.response.ComplaintDetailResponse;
+import com.solux.sm137.dto.response.UserComplaintDetailResponse;
 import com.solux.sm137.dto.response.KeywordSearchResponse;
 import com.solux.sm137.infra.apiPayload.base.ApiResponse;
 import com.solux.sm137.infra.apiPayload.status.SuccessStatus;
@@ -29,10 +29,10 @@ public class ComplaintController {
     }
 
     @GetMapping("/detail/{complaintId}")
-    public ApiResponse<ComplaintDetailResponse> getComplaintDetail(
+    public ApiResponse<UserComplaintDetailResponse> getComplaintDetail(
             @PathVariable Long complaintId
     ){
-        ComplaintDetailResponse detailResponse= complaintService.getComplaintDetail(complaintId);
+        UserComplaintDetailResponse detailResponse= complaintService.getUserComplaintDetail(complaintId);
         return ApiResponse.onSuccess(detailResponse, SuccessStatus._GET_DETAIL_SUCCESS);
     }
 
