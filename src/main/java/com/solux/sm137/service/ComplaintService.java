@@ -4,6 +4,7 @@ import com.solux.sm137.domain.Complaint;
 import com.solux.sm137.domain.Scrap;
 import com.solux.sm137.domain.User;
 import com.solux.sm137.dto.request.ScrapRequest;
+import com.solux.sm137.dto.response.ComplaintDetailResponse;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.repository.ComplaintRepository;
@@ -33,6 +34,25 @@ public class ComplaintService {
 
         Scrap scrap = new Scrap(user, complaint);
         scrapRepository.save(scrap);
+    }
+
+    @Transactional
+    public ComplaintDetailResponse getComplaintDetail(Long complaintId) {
+        Complaint complaint = complaintRepository.findById(complaintId).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+        return new ComplaintDetailResponse(
+                complaint.getId(),
+                complaint.getStatus(),
+                complaint.getTitle(),
+                complaint.getContentProb(),
+                complaint.getContentDir(),
+                complaint.getContentExpect(),
+                complaint.getAnswer(),
+                complaint.getComplaintLikes().size(),
+                complaint.getScraps().size(),
+                complaint.getCategory().getCategoryName(),
+                complaint.getCreatedAt()
+        );
+
     }
 
 }

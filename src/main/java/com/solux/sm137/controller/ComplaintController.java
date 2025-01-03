@@ -1,6 +1,7 @@
 package com.solux.sm137.controller;
 
 import com.solux.sm137.dto.request.ScrapRequest;
+import com.solux.sm137.dto.response.ComplaintDetailResponse;
 import com.solux.sm137.infra.apiPayload.base.ApiResponse;
 import com.solux.sm137.infra.apiPayload.status.SuccessStatus;
 import com.solux.sm137.service.ComplaintService;
@@ -20,6 +21,14 @@ public class ComplaintController {
     ) {
         complaintService.scrapComplaint(token, request);
         return ApiResponse.onSuccess(null, SuccessStatus._POST_SCRAPS_SUCCESS);
+    }
+
+    @GetMapping("/detail/{complaintId}")
+    public ApiResponse<ComplaintDetailResponse> getComplaintDetail(
+            @PathVariable Long complaintId
+    ){
+        ComplaintDetailResponse detailResponse= complaintService.getComplaintDetail(complaintId);
+        return ApiResponse.onSuccess(detailResponse, SuccessStatus._GET_DETAIL_SUCCESS);
     }
 
 }
