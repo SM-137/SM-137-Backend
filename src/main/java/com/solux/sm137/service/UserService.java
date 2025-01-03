@@ -134,4 +134,13 @@ public class UserService {
                 })
                 .collect(Collectors.toList());
     }
+    public void deleteUser(String token) {
+        if (token == null || token.isEmpty()) {
+            throw new IllegalArgumentException("Token is empty");
+        }
+
+        // JWT 토큰에서 유저 정보 추출 (예시는 1L, 실제로 토큰 기반)
+        User user = userRepository.findById(1L).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        userRepository.delete(user);
+    }
 }

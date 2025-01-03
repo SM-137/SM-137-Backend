@@ -61,4 +61,12 @@ public class UserController {
         List<ScrapResponse> scraps = userService.getScraps(token);
         return ApiResponse.onSuccess(scraps, SuccessStatus._GET_SCRAPS_SUCCESS);
     }
+
+    @DeleteMapping("/signout")
+    public ApiResponse<ResultResponse> signOut(@RequestHeader("Authorization") String token) {
+        // 토큰에서 'Bearer ' 부분을 제거
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+        userService.deleteUser(accessToken);
+        return ApiResponse.onSuccess(null, SuccessStatus._USER_DELETED);
+    }
 }
