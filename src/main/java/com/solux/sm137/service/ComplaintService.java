@@ -3,7 +3,9 @@ package com.solux.sm137.service;
 import com.solux.sm137.domain.Complaint;
 import com.solux.sm137.domain.Scrap;
 import com.solux.sm137.domain.User;
+import com.solux.sm137.dto.request.CategoryRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
+import com.solux.sm137.dto.response.CategoryResponse;
 import com.solux.sm137.dto.response.ComplaintDetailResponse;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
@@ -13,6 +15,9 @@ import com.solux.sm137.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -52,7 +57,22 @@ public class ComplaintService {
                 complaint.getCategory().getCategoryName(),
                 complaint.getCreatedAt()
         );
-
     }
 
+    @Transactional
+    public List<CategoryResponse> getComplaintCategory(CategoryRequest request) {
+        List<Complaint> complaints = complaintRepository.findByCategoryName(request.getCategoryName()).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+        if (complaints.isEmpty()) {
+            throw new BusinessException(FailureStatus._NOT_FOUND);
+        }
+        return complaints.stream()
+                .map(complaint -> new CategoryResponse(
+                        complaint.getId(),
+                        complaint.getStatus(),
+                        complaint.getTitle(),
+                        complaint.getContentProb(),
+                        complaint.getComplaintLikes().size(),
+                        complaint.getScraps().size()))
+                .collect(Collectors.toList());
+    }
 }
