@@ -17,4 +17,11 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
 
     @Query("SELECT c FROM Complaint c JOIN c.category Category WHERE Category.categoryName = :categoryName")
     Optional<List<Complaint>> findByCategoryName(@Param("categoryName") String categoryName);
+
+    @Query(value = "SELECT * FROM complaint c " +
+            "WHERE MATCH(title, content_prob, content_dir, content_expect) " +
+            "AGAINST(:keyword IN NATURAL LANGUAGE MODE)",
+            nativeQuery = true)
+    Optional<List<Complaint>> findByKeyword(@Param("keyword") String keyword);
+
 }

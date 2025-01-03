@@ -7,6 +7,7 @@ import com.solux.sm137.dto.request.CategoryRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
 import com.solux.sm137.dto.response.CategoryResponse;
 import com.solux.sm137.dto.response.ComplaintDetailResponse;
+import com.solux.sm137.dto.response.KeywordSearchResponse;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.repository.ComplaintRepository;
@@ -73,6 +74,24 @@ public class ComplaintService {
                         complaint.getContentProb(),
                         complaint.getComplaintLikes().size(),
                         complaint.getScraps().size()))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<KeywordSearchResponse> getComplaintKeyword(String keyword) {
+        List<Complaint> complaints = complaintRepository.findByKeyword(keyword).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+        if (complaints.isEmpty()) {
+            throw new BusinessException(FailureStatus._NOT_FOUND);
+        }
+        return complaints.stream()
+                .map(complaint -> new KeywordSearchResponse(
+                        complaint.getId(),
+                        complaint.getStatus(),
+                        complaint.getTitle(),
+                        complaint.getContentProb(),
+                        complaint.getComplaintLikes().size(),
+                        complaint.getScraps().size(),
+                        complaint.getCategory().getCategoryName()))
                 .collect(Collectors.toList());
     }
 }
