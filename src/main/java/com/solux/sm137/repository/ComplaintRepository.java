@@ -11,4 +11,5 @@ import java.util.Optional;
 @Repository
 public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
     Optional<List<Complaint>> findByUser(User user);
+    Optional<Complaint> findById(Long id);
 }

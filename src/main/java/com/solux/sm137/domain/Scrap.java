@@ -9,16 +9,15 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@IdClass(ScrapId.class)
 public class Scrap extends BaseTimeEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "scrap_id")
-    private Long id;
 
+    @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "complaint_id", nullable = false)
     private Complaint complaint;
