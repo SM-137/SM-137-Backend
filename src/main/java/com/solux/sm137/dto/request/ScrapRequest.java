@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ComplaintRequest {
+public class ScrapRequest {
     @NotNull
     private Long complaintId;
 }
