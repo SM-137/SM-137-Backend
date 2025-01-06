@@ -1,5 +1,7 @@
 package com.solux.sm137.repository;
 
+import com.solux.sm137.domain.Complaint;
+import com.solux.sm137.domain.CompositeId;
 import com.solux.sm137.domain.Scrap;
 import com.solux.sm137.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,9 +13,9 @@ import java.util.Optional;
 
 @Repository
 @Transactional
-public interface ScrapRepository extends JpaRepository<Scrap, Long> {
+public interface ScrapRepository extends JpaRepository<Scrap, CompositeId> {
 
     Optional<List<Scrap>> findByUser(User user);
     Scrap save(Scrap scrap);
-
+    Optional<Scrap> findById(CompositeId compositeId);
 }
