@@ -3,6 +3,8 @@ package com.solux.sm137.service;
 import com.solux.sm137.domain.Complaint;
 import com.solux.sm137.domain.Scrap;
 import com.solux.sm137.domain.User;
+import com.solux.sm137.dto.request.ComplaintAnswerRequest;
+import com.solux.sm137.dto.response.ComplaintAnswerResponse;
 import com.solux.sm137.dto.request.CategoryRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
 import com.solux.sm137.dto.response.CategoryResponse;
@@ -33,7 +35,7 @@ public class ComplaintService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void scrapComplaint(String token, ScrapRequest request ) {
+    public void scrapComplaint(String token, ScrapRequest request) {
 
         if (token == null || token.isEmpty()) {
             throw new IllegalArgumentException("Token is empty");
@@ -63,6 +65,7 @@ public class ComplaintService {
                 ))
                 .collect(Collectors.toList()); // Stream을 List로 변환
     }
+
     @Transactional(readOnly = true)
     public ComplaintDetailResponse getComplaintDetail(Long complaintId) {
         // 민원 상세 조회
@@ -93,6 +96,19 @@ public class ComplaintService {
                 complaint.getAnswer(),
                 List.of(userInfoResponse)
         );
+    }
+
+    @Transactional
+    public ComplaintAnswerResponse registerComplaintAnswer(Long complaintId, ComplaintAnswerRequest request) {
+        Complaint complaint = complaintRepository.findById(complaintId)
+                .orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+
+        // 답변 등록
+        complaint.setAnswer(request.getAnswerContent());
+        complaint.setStatus(request.getComplaintStatus());
+        complaintRepository.save(complaint);
+
+        return new ComplaintAnswerResponse(complaint.getId().toString(), complaint.getAnswer());
     }
 
     @Transactional(readOnly = true)
