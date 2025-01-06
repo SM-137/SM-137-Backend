@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,5 +21,6 @@ public class MyComplaintResponse {
     private Integer likeCount;
     private Integer scrapCount;
     private String category;
+    private String tag;
     private LocalDateTime createdAt;
 }

@@ -11,7 +11,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class ScrapId implements Serializable {
+public class CompositeId implements Serializable {
 
     private Long user;
     private Long complaint;
