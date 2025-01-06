@@ -20,5 +20,6 @@ public class ScrapResponse {
     private Integer likeCount;
     private Integer scrapCount;
     private String category;
+    private String tag;
     private LocalDateTime createdAt;
 }

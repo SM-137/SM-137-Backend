@@ -73,6 +73,7 @@ public class UserService {
                         complaint.getComplaintLikes().size(),
                         complaint.getScraps().size(),
                         complaint.getCategory().getCategoryName(),
+                        complaint.getTag().getTagName(),
                         complaint.getCreatedAt()))
                 .collect(Collectors.toList());
 
@@ -129,11 +130,13 @@ public class UserService {
                             complaint.getComplaintLikes().size(),
                             complaint.getScraps().size(),
                             complaint.getCategory().getCategoryName(),
+                            complaint.getTag().getTagName(),
                             complaint.getCreatedAt()
                     );
                 })
                 .collect(Collectors.toList());
     }
+
     public void deleteUser(String token) {
         if (token == null || token.isEmpty()) {
             throw new IllegalArgumentException("Token is empty");
