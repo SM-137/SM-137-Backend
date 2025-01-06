@@ -1,5 +1,6 @@
 package com.solux.sm137.service;
 
+import com.solux.sm137.domain.Complaint;
 import com.solux.sm137.domain.Scrap;
 import com.solux.sm137.domain.User;
 import com.solux.sm137.dto.request.CategoryRequest;
@@ -24,7 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class ComplaintService {
     private final ScrapRepository scrapRepository;
@@ -45,7 +46,7 @@ public class ComplaintService {
         scrapRepository.save(scrap);
     }
   
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ManagerComplaintResponse> getComplaintList() {
       // 모든 민원 리스트를 조회
         List<Complaint> complaints = complaintRepository.findAll();
@@ -62,7 +63,7 @@ public class ComplaintService {
                 ))
                 .collect(Collectors.toList()); // Stream을 List로 변환
     }
-    @Transactional
+    @Transactional(readOnly = true)
     public ComplaintDetailResponse getComplaintDetail(Long complaintId) {
         // 민원 상세 조회
         Optional<Complaint> complaintOptional = complaintRepository.findById(complaintId);
@@ -92,8 +93,9 @@ public class ComplaintService {
                 complaint.getAnswer(),
                 List.of(userInfoResponse)
         );
+    }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserComplaintDetailResponse getUserComplaintDetail(Long complaintId) {
         Complaint complaint = complaintRepository.findById(complaintId).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         return new UserComplaintDetailResponse(
@@ -111,7 +113,7 @@ public class ComplaintService {
         );
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<CategoryResponse> getComplaintCategory(CategoryRequest request) {
         List<Complaint> complaints = complaintRepository.findByCategoryName(request.getCategoryName()).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         if (complaints.isEmpty()) {
@@ -128,7 +130,7 @@ public class ComplaintService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<KeywordSearchResponse> getComplaintKeyword(String keyword) {
         List<Complaint> complaints = complaintRepository.findByKeyword(keyword).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         if (complaints.isEmpty()) {
