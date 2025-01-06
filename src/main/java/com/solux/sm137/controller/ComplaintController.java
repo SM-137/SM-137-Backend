@@ -8,6 +8,7 @@ import com.solux.sm137.dto.response.KeywordSearchResponse;
 import com.solux.sm137.infra.apiPayload.base.ApiResponse;
 import com.solux.sm137.infra.apiPayload.status.SuccessStatus;
 import com.solux.sm137.service.ComplaintService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ import java.util.List;
 public class ComplaintController {
     private final ComplaintService complaintService;
 
+    @Operation(summary = "민원스크랩")
     @PostMapping("/scrap")
     public ApiResponse<Void> scrapComplaint(
             @RequestHeader("Authorization") String token,
