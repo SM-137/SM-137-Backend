@@ -6,20 +6,16 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class ScrapResponse {
+public class KeywordSearchResponse {
     private Long complaintId;
-    private String complaintTitle;
     private ComplaintStatus complaintStatus;
+    private String complaintTitle;
     private String contentProb;
     private Integer likeCount;
     private Integer scrapCount;
     private String category;
-    private String tag;
-    private LocalDateTime createdAt;
 }

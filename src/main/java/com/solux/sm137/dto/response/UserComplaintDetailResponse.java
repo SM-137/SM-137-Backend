@@ -12,14 +12,16 @@ import java.time.LocalDateTime;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class ScrapResponse {
+public class UserComplaintDetailResponse {
     private Long complaintId;
-    private String complaintTitle;
     private ComplaintStatus complaintStatus;
+    private String complaintTitle;
     private String contentProb;
+    private String contentDir;
+    private String contentExpect;
+    private String answer;
     private Integer likeCount;
     private Integer scrapCount;
     private String category;
-    private String tag;
     private LocalDateTime createdAt;
 }
