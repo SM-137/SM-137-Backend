@@ -49,4 +49,7 @@ public class User {
         this.department = department;
     }
 
+    public void update(String name) {
+        this.name = name;
+    }
 }
