@@ -28,6 +28,15 @@ public class ComplaintController {
         return ApiResponse.onSuccess(null, SuccessStatus._POST_SCRAPS_SUCCESS);
     }
 
+    @DeleteMapping("/scrap/delete")
+    public ApiResponse<Void> deleteScrapComplaint(
+            @RequestHeader("Authorization") String token,
+            @RequestBody ScrapRequest request
+    ) {
+        complaintService.deleteScrapComplaint(token, request);
+        return ApiResponse.onSuccess(null, SuccessStatus._DELETE_SCRAPS_SUCCESS);
+    }
+
     @GetMapping("/detail/{complaintId}")
     public ApiResponse<UserComplaintDetailResponse> getComplaintDetail(
             @PathVariable Long complaintId

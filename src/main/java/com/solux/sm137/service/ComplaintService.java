@@ -1,5 +1,7 @@
 package com.solux.sm137.service;
 
+import com.solux.sm137.domain.Complaint;
+import com.solux.sm137.domain.CompositeId;
 import com.solux.sm137.domain.Scrap;
 import com.solux.sm137.domain.User;
 import com.solux.sm137.dto.request.CategoryRequest;
@@ -44,7 +46,23 @@ public class ComplaintService {
         Scrap scrap = new Scrap(user, complaint);
         scrapRepository.save(scrap);
     }
-  
+    @Transactional
+    public void deleteScrapComplaint(String token, ScrapRequest request) {
+
+        if (token == null || token.isEmpty()) {
+            throw new IllegalArgumentException("Token is empty");
+        }
+
+        User user = userRepository.findById(1L).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        Complaint complaint = complaintRepository.findById(request.getComplaintId()).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+
+        CompositeId compositeId = new CompositeId(user.getId(), complaint.getId());
+
+        Scrap scrap = scrapRepository.findById(compositeId).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+        scrapRepository.delete(scrap);
+    }
+
+
     @Transactional
     public List<ManagerComplaintResponse> getComplaintList() {
       // 모든 민원 리스트를 조회
@@ -92,6 +110,7 @@ public class ComplaintService {
                 complaint.getAnswer(),
                 List.of(userInfoResponse)
         );
+    }
 
     @Transactional
     public UserComplaintDetailResponse getUserComplaintDetail(Long complaintId) {
