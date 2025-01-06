@@ -4,6 +4,8 @@ import com.solux.sm137.domain.Complaint;
 import com.solux.sm137.domain.CompositeId;
 import com.solux.sm137.domain.Scrap;
 import com.solux.sm137.domain.User;
+import com.solux.sm137.dto.request.ComplaintAnswerRequest;
+import com.solux.sm137.dto.response.ComplaintAnswerResponse;
 import com.solux.sm137.dto.request.CategoryRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
 import com.solux.sm137.dto.response.CategoryResponse;
@@ -26,7 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class ComplaintService {
     private final ScrapRepository scrapRepository;
@@ -34,7 +36,7 @@ public class ComplaintService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void scrapComplaint(String token, ScrapRequest request ) {
+    public void scrapComplaint(String token, ScrapRequest request) {
 
         if (token == null || token.isEmpty()) {
             throw new IllegalArgumentException("Token is empty");
@@ -46,6 +48,7 @@ public class ComplaintService {
         Scrap scrap = new Scrap(user, complaint);
         scrapRepository.save(scrap);
     }
+
     @Transactional
     public void deleteScrapComplaint(String token, ScrapRequest request) {
 
@@ -61,9 +64,8 @@ public class ComplaintService {
         Scrap scrap = scrapRepository.findById(compositeId).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         scrapRepository.delete(scrap);
     }
-
-
-    @Transactional
+  
+    @Transactional(readOnly = true)
     public List<ManagerComplaintResponse> getComplaintList() {
       // 모든 민원 리스트를 조회
         List<Complaint> complaints = complaintRepository.findAll();
@@ -80,7 +82,8 @@ public class ComplaintService {
                 ))
                 .collect(Collectors.toList()); // Stream을 List로 변환
     }
-    @Transactional
+
+    @Transactional(readOnly = true)
     public ComplaintDetailResponse getComplaintDetail(Long complaintId) {
         // 민원 상세 조회
         Optional<Complaint> complaintOptional = complaintRepository.findById(complaintId);
@@ -113,6 +116,19 @@ public class ComplaintService {
     }
 
     @Transactional
+    public ComplaintAnswerResponse registerComplaintAnswer(Long complaintId, ComplaintAnswerRequest request) {
+        Complaint complaint = complaintRepository.findById(complaintId)
+                .orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+
+        // 답변 등록
+        complaint.setAnswer(request.getAnswerContent());
+        complaint.setStatus(request.getComplaintStatus());
+        complaintRepository.save(complaint);
+
+        return new ComplaintAnswerResponse(complaint.getId().toString(), complaint.getAnswer());
+    }
+
+    @Transactional(readOnly = true)
     public UserComplaintDetailResponse getUserComplaintDetail(Long complaintId) {
         Complaint complaint = complaintRepository.findById(complaintId).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         return new UserComplaintDetailResponse(
@@ -130,7 +146,7 @@ public class ComplaintService {
         );
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<CategoryResponse> getComplaintCategory(CategoryRequest request) {
         List<Complaint> complaints = complaintRepository.findByCategoryName(request.getCategoryName()).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         if (complaints.isEmpty()) {
@@ -147,7 +163,7 @@ public class ComplaintService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<KeywordSearchResponse> getComplaintKeyword(String keyword) {
         List<Complaint> complaints = complaintRepository.findByKeyword(keyword).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         if (complaints.isEmpty()) {
