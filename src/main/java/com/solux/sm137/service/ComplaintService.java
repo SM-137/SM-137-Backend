@@ -2,7 +2,11 @@ package com.solux.sm137.service;
 
 import com.solux.sm137.domain.Scrap;
 import com.solux.sm137.domain.User;
+import com.solux.sm137.dto.request.CategoryRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
+import com.solux.sm137.dto.response.CategoryResponse;
+import com.solux.sm137.dto.response.UserComplaintDetailResponse;
+import com.solux.sm137.dto.response.KeywordSearchResponse;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.repository.ComplaintRepository;
@@ -41,8 +45,9 @@ public class ComplaintService {
         scrapRepository.save(scrap);
     }
   
+    @Transactional
     public List<ManagerComplaintResponse> getComplaintList() {
-        // 모든 민원 리스트를 조회
+      // 모든 민원 리스트를 조회
         List<Complaint> complaints = complaintRepository.findAll();
 
         // 민원 목록을 ManagerComplaintResponse로 변환
@@ -57,8 +62,8 @@ public class ComplaintService {
                 ))
                 .collect(Collectors.toList()); // Stream을 List로 변환
     }
-
-     public ComplaintDetailResponse getComplaintDetail(Long complaintId) {
+    @Transactional
+    public ComplaintDetailResponse getComplaintDetail(Long complaintId) {
         // 민원 상세 조회
         Optional<Complaint> complaintOptional = complaintRepository.findById(complaintId);
 
@@ -87,4 +92,58 @@ public class ComplaintService {
                 complaint.getAnswer(),
                 List.of(userInfoResponse)
         );
+
+    @Transactional
+    public UserComplaintDetailResponse getUserComplaintDetail(Long complaintId) {
+        Complaint complaint = complaintRepository.findById(complaintId).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+        return new UserComplaintDetailResponse(
+                complaint.getId(),
+                complaint.getStatus(),
+                complaint.getTitle(),
+                complaint.getContentProb(),
+                complaint.getContentDir(),
+                complaint.getContentExpect(),
+                complaint.getAnswer(),
+                complaint.getComplaintLikes().size(),
+                complaint.getScraps().size(),
+                complaint.getCategory().getCategoryName(),
+                complaint.getCreatedAt()
+        );
+    }
+
+    @Transactional
+    public List<CategoryResponse> getComplaintCategory(CategoryRequest request) {
+        List<Complaint> complaints = complaintRepository.findByCategoryName(request.getCategoryName()).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+        if (complaints.isEmpty()) {
+            throw new BusinessException(FailureStatus._NOT_FOUND);
+        }
+        return complaints.stream()
+                .map(complaint -> new CategoryResponse(
+                        complaint.getId(),
+                        complaint.getStatus(),
+                        complaint.getTitle(),
+                        complaint.getContentProb(),
+                        complaint.getComplaintLikes().size(),
+                        complaint.getScraps().size()))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<KeywordSearchResponse> getComplaintKeyword(String keyword) {
+        List<Complaint> complaints = complaintRepository.findByKeyword(keyword).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+        if (complaints.isEmpty()) {
+            throw new BusinessException(FailureStatus._NOT_FOUND);
+        }
+        return complaints.stream()
+                .map(complaint -> new KeywordSearchResponse(
+                        complaint.getId(),
+                        complaint.getStatus(),
+                        complaint.getTitle(),
+                        complaint.getContentProb(),
+                        complaint.getComplaintLikes().size(),
+                        complaint.getScraps().size(),
+                        complaint.getCategory().getCategoryName()))
+                .collect(Collectors.toList());
+    }
 }
+

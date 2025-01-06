@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@IdClass(ScrapId.class)
+@IdClass(CompositeId.class)
 public class Scrap extends BaseTimeEntity {
 
     @Id
