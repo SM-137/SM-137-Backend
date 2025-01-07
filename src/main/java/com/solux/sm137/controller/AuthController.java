@@ -4,7 +4,7 @@ import com.solux.sm137.dto.response.LoginResponse;
 import com.solux.sm137.infra.apiPayload.base.ApiResponse;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.infra.apiPayload.status.SuccessStatus;
-import jakarta.servlet.http.HttpSession;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
+    @Operation(summary = "로그인")
     @GetMapping("/callback")
     public ApiResponse<LoginResponse> loginCallback(OAuth2AuthenticationToken authenticationToken) {
         if (authenticationToken == null || authenticationToken.getPrincipal() == null) {
@@ -32,6 +33,7 @@ public class AuthController {
         return ApiResponse.onSuccess(loginResponse, SuccessStatus._LOGIN_SUCCESS);
     }
 
+    @Operation(summary = "로그아웃")
     @PostMapping("/logout")
     public ApiResponse<Void> logout() {
         // 클라이언트가 토큰을 삭제하도록 유도

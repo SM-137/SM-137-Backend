@@ -20,7 +20,10 @@ public class SecurityConfig {
             "/api/v1/user/**",
             "/api/manager/complaint/**",
             "/api/complaints/**",
-            "/api/v1/google/login"
+            "/api/v1/google/login",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html"
     };
 
     private final CustomOAuth2UserService customOAuth2UserService;
