@@ -30,7 +30,7 @@ public class ComplaintController {
         return ApiResponse.onSuccess(null, SuccessStatus._POST_SCRAPS_SUCCESS);
     }
 
-    @Operation(summary = "민원내용 상세")
+    @Operation(summary = "민원스크랩 취소")
     @DeleteMapping("/scrap/delete")
     public ApiResponse<Void> deleteScrapComplaint(
             @RequestHeader("Authorization") String token,
@@ -40,6 +40,7 @@ public class ComplaintController {
         return ApiResponse.onSuccess(null, SuccessStatus._DELETE_SCRAPS_SUCCESS);
     }
 
+    @Operation(summary = "민원내용 상세")
     @GetMapping("/detail/{complaintId}")
     public ApiResponse<UserComplaintDetailResponse> getComplaintDetail(
             @PathVariable Long complaintId
