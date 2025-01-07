@@ -4,31 +4,39 @@ import com.solux.sm137.dto.response.LoginResponse;
 import com.solux.sm137.infra.apiPayload.base.ApiResponse;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.infra.apiPayload.status.SuccessStatus;
-import jakarta.servlet.http.HttpSession;
+import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/google")
+@RequiredArgsConstructor
+@Slf4j
 public class AuthController {
-    @GetMapping("/callback")
-    public ApiResponse<LoginResponse> loginCallback(OAuth2AuthenticationToken authenticationToken) {
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @GetMapping("/login")
+    public ApiResponse<LoginResponse> loginCallback(Authentication authentication) {
+        OAuth2AuthenticationToken authenticationToken = (OAuth2AuthenticationToken) authentication;
         if (authenticationToken == null || authenticationToken.getPrincipal() == null) {
             // 인증되지 않은 유저 처리
             return ApiResponse.onFailure(null, FailureStatus._UNAUTHORIZED);
         }
+        Map<String, Object> attributes = authenticationToken.getPrincipal().getAttributes();
+        String name = (String) attributes.get("name");
+        String email = (String) attributes.get("email");
+        String token = jwtTokenProvider.createToken(email);
 
-        // 액세스 토큰, 사용자 이름, 이메일 추출
-        String accessToken = authenticationToken.getCredentials().toString(); // 액세스 토큰
-        String userName = authenticationToken.getPrincipal().getName(); // 사용자 이름
-        String userEmail = authenticationToken.getPrincipal().getAttribute("email"); // 사용자 이메일
-
-        // 로그인 성공 후 반환할 로그인 응답 생성
-        LoginResponse loginResponse = new LoginResponse(accessToken, userName, userEmail);
-
+        // 로그인 응답 생성
+        LoginResponse loginResponse = new LoginResponse(token, name, email);
         return ApiResponse.onSuccess(loginResponse, SuccessStatus._LOGIN_SUCCESS);
     }
 
