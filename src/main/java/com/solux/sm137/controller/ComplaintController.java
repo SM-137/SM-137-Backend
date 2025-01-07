@@ -31,6 +31,15 @@ public class ComplaintController {
     }
 
     @Operation(summary = "민원내용 상세")
+    @DeleteMapping("/scrap/delete")
+    public ApiResponse<Void> deleteScrapComplaint(
+            @RequestHeader("Authorization") String token,
+            @RequestBody ScrapRequest request
+    ) {
+        complaintService.deleteScrapComplaint(token, request);
+        return ApiResponse.onSuccess(null, SuccessStatus._DELETE_SCRAPS_SUCCESS);
+    }
+
     @GetMapping("/detail/{complaintId}")
     public ApiResponse<UserComplaintDetailResponse> getComplaintDetail(
             @PathVariable Long complaintId
@@ -52,7 +61,7 @@ public class ComplaintController {
     @GetMapping("/search")
     public ApiResponse<List<KeywordSearchResponse>> getComplaintKeyword(
             @RequestParam(required = true) String keyword
-    ) {
+    ){
         List<KeywordSearchResponse> keywordSearchResponses = complaintService.getComplaintKeyword(keyword);
         return ApiResponse.onSuccess(keywordSearchResponses, SuccessStatus._GET_KEYWORD_COMPLAINTS_SUCCESS);
     }
