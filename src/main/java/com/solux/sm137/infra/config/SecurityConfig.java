@@ -28,6 +28,9 @@ public class SecurityConfig {
             "/api/manager/complaint/**",
             "/api/complaints/**",
             "/api/v1/google/login",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html"
     };
 
     private final CustomOAuth2UserService customOAuth2UserService;

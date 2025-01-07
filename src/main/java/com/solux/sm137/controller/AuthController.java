@@ -8,6 +8,7 @@ import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Operation(summary = "로그인")
     @GetMapping("/login")
     public ApiResponse<LoginResponse> loginCallback(Authentication authentication) {
         OAuth2AuthenticationToken authenticationToken = (OAuth2AuthenticationToken) authentication;
@@ -40,6 +42,7 @@ public class AuthController {
         return ApiResponse.onSuccess(loginResponse, SuccessStatus._LOGIN_SUCCESS);
     }
 
+    @Operation(summary = "로그아웃")
     @PostMapping("/logout")
     public ApiResponse<Void> logout() {
         // 클라이언트가 토큰을 삭제하도록 유도
