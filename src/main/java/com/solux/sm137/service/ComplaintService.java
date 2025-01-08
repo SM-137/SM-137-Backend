@@ -142,6 +142,7 @@ public class ComplaintService {
                 complaint.getComplaintLikes().size(),
                 complaint.getScraps().size(),
                 complaint.getCategory().getCategoryName(),
+                complaint.getTag().getTagName(),
                 complaint.getCreatedAt()
         );
     }
@@ -155,6 +156,7 @@ public class ComplaintService {
         return complaints.stream()
                 .map(complaint -> new CategoryResponse(
                         complaint.getId(),
+                        complaint.getTag().getTagName(),
                         complaint.getStatus(),
                         complaint.getTitle(),
                         complaint.getContentProb(),

@@ -12,6 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CategoryResponse {
     private Long complaintId;
+    private String tag;
     private ComplaintStatus complaintStatus;
     private String complaintTitle;
     private String contentProb;
