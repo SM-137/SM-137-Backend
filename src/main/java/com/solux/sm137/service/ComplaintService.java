@@ -4,21 +4,16 @@ import com.solux.sm137.domain.Complaint;
 import com.solux.sm137.domain.CompositeId;
 import com.solux.sm137.domain.Scrap;
 import com.solux.sm137.domain.User;
-import com.solux.sm137.dto.request.ComplaintAnswerRequest;
-import com.solux.sm137.dto.response.ComplaintAnswerResponse;
 import com.solux.sm137.dto.request.CategoryRequest;
+import com.solux.sm137.dto.request.ComplaintAnswerRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
-import com.solux.sm137.dto.response.CategoryResponse;
-import com.solux.sm137.dto.response.UserComplaintDetailResponse;
-import com.solux.sm137.dto.response.KeywordSearchResponse;
+import com.solux.sm137.dto.response.*;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
+import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
 import com.solux.sm137.repository.ComplaintRepository;
 import com.solux.sm137.repository.ScrapRepository;
 import com.solux.sm137.repository.UserRepository;
-import com.solux.sm137.dto.response.ComplaintDetailResponse;
-import com.solux.sm137.dto.response.ManagerComplaintResponse;
-import com.solux.sm137.dto.response.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,15 +29,15 @@ public class ComplaintService {
     private final ScrapRepository scrapRepository;
     private final ComplaintRepository complaintRepository;
     private final UserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
     public void scrapComplaint(String token, ScrapRequest request) {
-
-        if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("Token is empty");
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
         }
-
-        User user = userRepository.findById(1L).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        String email = jwtTokenProvider.getEmailFromToken(token);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
         Complaint complaint = complaintRepository.findById(request.getComplaintId()).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
 
         Scrap scrap = new Scrap(user, complaint);
@@ -51,12 +46,12 @@ public class ComplaintService {
 
     @Transactional
     public void deleteScrapComplaint(String token, ScrapRequest request) {
-
-        if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("Token is empty");
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
         }
 
-        User user = userRepository.findById(1L).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        String email = jwtTokenProvider.getEmailFromToken(token);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
         Complaint complaint = complaintRepository.findById(request.getComplaintId()).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
 
         CompositeId compositeId = new CompositeId(user.getId(), complaint.getId());
@@ -64,10 +59,10 @@ public class ComplaintService {
         Scrap scrap = scrapRepository.findById(compositeId).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         scrapRepository.delete(scrap);
     }
-  
+
     @Transactional(readOnly = true)
     public List<ManagerComplaintResponse> getComplaintList() {
-      // 모든 민원 리스트를 조회
+        // 모든 민원 리스트를 조회
         List<Complaint> complaints = complaintRepository.findAll();
 
         // 민원 목록을 ManagerComplaintResponse로 변환

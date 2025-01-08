@@ -20,10 +20,10 @@ public class SecurityConfig {
 
     private static final String[] ALLOWED_URIS = {
             "/", "/css/**", "/images/**", "/js/**", "/favicon.ico",
-            "/api/v1/user/**",
+            "/api/user/**",
             "/api/manager/complaint/**",
             "/api/complaints/**",
-            "/api/v1/google/login",
+            "/api/google/login",
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-ui.html"

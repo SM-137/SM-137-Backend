@@ -33,4 +33,25 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256) // 서명 알고리즘
                 .compact();
     }
+
+    // JWT 토큰에서 이메일 추출
+    public String getEmailFromToken(final String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
+    // JWT 토큰 유효성 검사
+    public boolean validateToken(final String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration()
+                .after(new Date());
+    }
 }
