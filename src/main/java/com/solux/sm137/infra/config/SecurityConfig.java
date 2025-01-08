@@ -1,25 +1,21 @@
 package com.solux.sm137.infra.config;
 
+import com.solux.sm137.infra.apiPayload.handler.OAuth2SuccessHandler;
 import com.solux.sm137.service.CustomOAuth2UserService;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import lombok.Builder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.stereotype.Service;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@Builder
 public class SecurityConfig {
 
     private static final String[] ALLOWED_URIS = {
@@ -34,10 +30,7 @@ public class SecurityConfig {
     };
 
     private final CustomOAuth2UserService customOAuth2UserService;
-
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
-        this.customOAuth2UserService = customOAuth2UserService;
-    }
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -59,6 +52,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
+                        .successHandler(oAuth2SuccessHandler)
                         .defaultSuccessUrl("/api/v1/google/login", true) // 로그인 성공 후 리디렉션
                 );
 
