@@ -36,7 +36,8 @@ public class UserService {
 
         // 없으면 에러 날림
         User user = userRepository.findById(1L).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
-        user.modifyUser(user.getNumber(), user.getDepartment());
+        user.modifyUser(request.getNumber(), request.getDepartment());
+        userRepository.save(user);
 
     }
 
