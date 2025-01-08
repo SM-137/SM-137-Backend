@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/google")
+@RequestMapping("/api/google")
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {

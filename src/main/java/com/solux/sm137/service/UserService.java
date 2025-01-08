@@ -11,6 +11,7 @@ import com.solux.sm137.dto.response.ScrapResponse;
 import com.solux.sm137.dto.response.UserInfoResponse;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
+import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
 import com.solux.sm137.repository.ComplaintRepository;
 import com.solux.sm137.repository.ScrapRepository;
 import com.solux.sm137.repository.UserRepository;
@@ -28,14 +29,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final ComplaintRepository complaintRepository;
     private final ScrapRepository scrapRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public void modifyUser(String token, ModifyUserRequest request) {
-        if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("Token is empty");
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
         }
 
+        String email = jwtTokenProvider.getEmailFromToken(token);
         // 없으면 에러 날림
-        User user = userRepository.findById(1L).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
         user.modifyUser(request.getNumber(), request.getDepartment());
         userRepository.save(user);
 
@@ -43,23 +46,26 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserInfoResponse getUserInfo(String token) {
-        if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("Token is empty");
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
         }
 
+        String email = jwtTokenProvider.getEmailFromToken(token);
+
         // 없으면 에러 날림
-        User user = userRepository.findById(1L).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
         return new UserInfoResponse(user.getName(), user.getEmail(), user.getNumber(), user.getDepartment());
     }
 
     @Transactional(readOnly = true)
     public List<MyComplaintResponse> getMyComplaints(String token) {
-        if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("Token is empty");
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
         }
 
+        String email = jwtTokenProvider.getEmailFromToken(token);
         // 없으면 에러 날림
-        User user = userRepository.findById(2L).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
         // 민원 목록 가져오기
         List<Complaint> complaints = complaintRepository.findByUser(user).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
@@ -82,12 +88,14 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<ResultResponse> getResults(String token) {
-        if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("Token is empty");
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
         }
 
+        String email = jwtTokenProvider.getEmailFromToken(token);
+
         // 없으면 에러 날림
-        User user = userRepository.findById(1L).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
         // 민원 목록 가져오기
         List<Complaint> complaints = complaintRepository.findByUser(user).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
@@ -109,12 +117,12 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<ScrapResponse> getScraps(String token) {
-        if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("Token is empty");
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
         }
 
-        // 없으면 에러 날림
-        User user = userRepository.findById(2L).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        String email = jwtTokenProvider.getEmailFromToken(token);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
         // 스크랩 목록 가져오기
         List<Scrap> scraps = scrapRepository.findByUser(user).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
@@ -139,12 +147,12 @@ public class UserService {
     }
 
     public void deleteUser(String token) {
-        if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("Token is empty");
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
         }
 
-        // JWT 토큰에서 유저 정보 추출 (예시는 1L, 실제로 토큰 기반)
-        User user = userRepository.findById(1L).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        String email = jwtTokenProvider.getEmailFromToken(token);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
         userRepository.delete(user);
     }
 }

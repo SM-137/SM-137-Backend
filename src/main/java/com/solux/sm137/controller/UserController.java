@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
@@ -27,7 +27,8 @@ public class UserController {
             @RequestHeader("Authorization") String token,
             @Valid @RequestBody ModifyUserRequest request
     ) {
-        userService.modifyUser(token, request);
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
+        userService.modifyUser(accessToken, request);
         return ApiResponse.onSuccess(null, SuccessStatus._MODIFY_USER_INFO_SUCCESS);
     }
 
@@ -36,7 +37,8 @@ public class UserController {
     public ApiResponse<UserInfoResponse> getUserInfo(
             @RequestHeader("Authorization") String token
     ) {
-        UserInfoResponse userInfo = userService.getUserInfo(token);
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
+        UserInfoResponse userInfo = userService.getUserInfo(accessToken);
         return ApiResponse.onSuccess(userInfo, SuccessStatus._GET_USER_INFO_SUCCESS);
     }
 
@@ -45,7 +47,8 @@ public class UserController {
     public ApiResponse<List<MyComplaintResponse>> getMyComplaints(
             @RequestHeader("Authorization") String token
     ) {
-        List<MyComplaintResponse> myComplaints = userService.getMyComplaints(token);
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
+        List<MyComplaintResponse> myComplaints = userService.getMyComplaints(accessToken);
         return ApiResponse.onSuccess(myComplaints, SuccessStatus._GET_MY_COMPLAINTS_SUCCESS);
     }
 
@@ -54,7 +57,8 @@ public class UserController {
     public ApiResponse<List<ResultResponse>> getResults(
             @RequestHeader("Authorization") String token
     ) {
-        List<ResultResponse> results = userService.getResults(token);
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
+        List<ResultResponse> results = userService.getResults(accessToken);
         return ApiResponse.onSuccess(results, SuccessStatus._GET_RESULTS_SUCCESS);
     }
 
@@ -63,7 +67,8 @@ public class UserController {
     public ApiResponse<List<ScrapResponse>> getScraps(
             @RequestHeader("Authorization") String token
     ) {
-        List<ScrapResponse> scraps = userService.getScraps(token);
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
+        List<ScrapResponse> scraps = userService.getScraps(accessToken);
         return ApiResponse.onSuccess(scraps, SuccessStatus._GET_SCRAPS_SUCCESS);
     }
 
@@ -71,7 +76,7 @@ public class UserController {
     @DeleteMapping("/signout")
     public ApiResponse<ResultResponse> signOut(@RequestHeader("Authorization") String token) {
         // 토큰에서 'Bearer ' 부분을 제거
-        String accessToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
         userService.deleteUser(accessToken);
         return ApiResponse.onSuccess(null, SuccessStatus._USER_DELETED);
     }

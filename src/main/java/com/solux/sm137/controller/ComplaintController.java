@@ -26,7 +26,8 @@ public class ComplaintController {
             @RequestHeader("Authorization") String token,
             @RequestBody ScrapRequest request
     ) {
-        complaintService.scrapComplaint(token, request);
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
+        complaintService.scrapComplaint(accessToken, request);
         return ApiResponse.onSuccess(null, SuccessStatus._POST_SCRAPS_SUCCESS);
     }
 
@@ -36,7 +37,8 @@ public class ComplaintController {
             @RequestHeader("Authorization") String token,
             @RequestBody ScrapRequest request
     ) {
-        complaintService.deleteScrapComplaint(token, request);
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
+        complaintService.deleteScrapComplaint(accessToken, request);
         return ApiResponse.onSuccess(null, SuccessStatus._DELETE_SCRAPS_SUCCESS);
     }
 
