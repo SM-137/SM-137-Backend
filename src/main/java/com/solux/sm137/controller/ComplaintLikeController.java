@@ -4,25 +4,24 @@ import com.solux.sm137.infra.apiPayload.base.ApiResponse;
 import com.solux.sm137.infra.apiPayload.status.SuccessStatus;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
-import com.solux.sm137.service.CommentLikeService;
+import com.solux.sm137.service.ComplaintLikeService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/complaints/{complaintId}/comments/{commentId}/like")
+@RequestMapping("/api/complaints/{complaintId}/like")
 @RequiredArgsConstructor
-public class CommentLikeController {
+public class ComplaintLikeController {
 
-    private final CommentLikeService commentLikeService;
+    private final ComplaintLikeService complaintLikeService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Operation(summary = "댓글 좋아요 추가")
+    @Operation(summary = "민원 좋아요 추가")
     @PostMapping
-    public ApiResponse<Void> addCommentLike(
+    public ApiResponse<Void> addComplaintLike(
             @RequestHeader("Authorization") String token,
-            @PathVariable("complaintId") Long complaintId,
-            @PathVariable("commentId") Long commentId) {
+            @PathVariable("complaintId") Long complaintId) {
 
         // JWT 토큰 검증
         String accessToken = token != null && token.startsWith("Bearer ") ? token.substring(7).trim() : token.trim();  // "Bearer " 제거 후 trim()
@@ -31,20 +30,19 @@ public class CommentLikeController {
         }
 
         try {
-            // 댓글 좋아요 추가 서비스 호출
-            commentLikeService.addCommentLike(accessToken, commentId);
-            return ApiResponse.onSuccess(null, SuccessStatus._POST_COMMENT_LIKE_SUCCESS);
+            // 민원 좋아요 추가 서비스 호출
+            complaintLikeService.addComplaintLike(accessToken, complaintId);
+            return ApiResponse.onSuccess(null, SuccessStatus._POST_COMPLAINT_LIKE_SUCCESS);
         } catch (IllegalArgumentException e) {
             return ApiResponse.onFailure(null, FailureStatus._BAD_REQUEST);
         }
     }
 
-    @Operation(summary = "댓글 좋아요 삭제")
+    @Operation(summary = "민원 좋아요 삭제")
     @DeleteMapping
-    public ApiResponse<Void> removeCommentLike(
+    public ApiResponse<Void> removeComplaintLike(
             @RequestHeader("Authorization") String token,
-            @PathVariable("complaintId") Long complaintId,
-            @PathVariable("commentId") Long commentId) {
+            @PathVariable("complaintId") Long complaintId) {
 
         // JWT 토큰 검증
         String accessToken = token != null && token.startsWith("Bearer ") ? token.substring(7).trim() : token.trim();  // "Bearer " 제거 후 trim()
@@ -53,9 +51,9 @@ public class CommentLikeController {
         }
 
         try {
-            // 댓글 좋아요 삭제 서비스 호출
-            commentLikeService.removeCommentLike(accessToken, commentId);
-            return ApiResponse.onSuccess(null, SuccessStatus._DELETE_COMMENT_LIKE_SUCCESS);
+            // 민원 좋아요 삭제 서비스 호출
+            complaintLikeService.removeComplaintLike(accessToken, complaintId);
+            return ApiResponse.onSuccess(null, SuccessStatus._DELETE_COMPLAINT_LIKE_SUCCESS);
         } catch (IllegalArgumentException e) {
             return ApiResponse.onFailure(null, FailureStatus._BAD_REQUEST);
         }
