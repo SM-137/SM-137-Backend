@@ -15,7 +15,8 @@ public enum FailureStatus implements BaseCode {
     _INTERNAL_SERVER_ERROR(500, "서버 내부 오류가 발생했습니다."),
     _COMPLAINT_NOT_FOUND(400, "존재하지 않는 글입니다."),
     _ANSWER_REGISTRATION_FAILED(400, "답변 등록에 실패했습니다."),
-    _AUTHENTICATION_FAILED(400, "OAuth2User가 null로, 사용자 인증에 실패했습니다.");
+    _AUTHENTICATION_FAILED(400, "OAuth2User가 null로, 사용자 인증에 실패했습니다."),
+    _CONFLICT(409, "대기 중인 민원만 수정 가능합니다.");
 
     private final int code;
     private final String message;

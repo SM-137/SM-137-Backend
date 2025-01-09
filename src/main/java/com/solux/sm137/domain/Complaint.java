@@ -1,5 +1,6 @@
 package com.solux.sm137.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.solux.sm137.infra.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,17 +21,21 @@ public class Complaint extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id", nullable = false)
+    @JsonBackReference
     private Tag tag;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonBackReference
     private Category category;
 
     @Column(nullable = false)
+    @JsonBackReference
     private String title;
 
     @Column(nullable = false)

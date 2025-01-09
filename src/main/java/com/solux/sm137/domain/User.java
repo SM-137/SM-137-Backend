@@ -1,5 +1,6 @@
 package com.solux.sm137.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 

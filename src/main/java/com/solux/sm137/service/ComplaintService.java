@@ -1,26 +1,32 @@
 package com.solux.sm137.service;
 
-import com.solux.sm137.domain.Complaint;
-import com.solux.sm137.domain.CompositeId;
-import com.solux.sm137.domain.Scrap;
-import com.solux.sm137.domain.User;
+import com.solux.sm137.domain.*;
 import com.solux.sm137.dto.request.CategoryRequest;
 import com.solux.sm137.dto.request.ComplaintAnswerRequest;
+import com.solux.sm137.dto.request.ComplaintRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
 import com.solux.sm137.dto.response.*;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
-import com.solux.sm137.repository.ComplaintRepository;
-import com.solux.sm137.repository.ScrapRepository;
-import com.solux.sm137.repository.UserRepository;
+import com.solux.sm137.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 @Service
 @Transactional
@@ -30,6 +36,97 @@ public class ComplaintService {
     private final ComplaintRepository complaintRepository;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final CategoryRepository categoryRepository;
+    private final AttachmentRepository attachmentRepository;
+
+    private final String uploadDir = System.getProperty("user.dir") + "/uploads";  // 파일 업로드 경로 설정
+
+    private static final Logger log = LoggerFactory.getLogger(ComplaintService.class);
+
+    // 민원 작성 메서드
+    @Transactional
+    public void createComplaint(String token, ComplaintRequest request, MultipartFile[] files) throws IOException {
+        try {
+            // JWT 토큰 유효성 검사
+            if (!jwtTokenProvider.validateToken(token)) {
+                throw new IllegalArgumentException("Invalid Token");
+            }
+
+            // 이메일 추출
+            String email = jwtTokenProvider.getEmailFromToken(token);
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+            // 카테고리 조회
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
+            // 상태 값 처리
+            ComplaintStatus status;
+            try {
+                status = ComplaintStatus.valueOf(request.getStatus().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid complaint status", e);
+            }
+
+            // 민원 객체 생성 및 저장
+            Complaint complaint = Complaint.builder()
+                    .user(user)
+                    .title(request.getTitle())
+                    .contentProb(request.getContentProb())
+                    .contentDir(request.getContentDir())
+                    .contentExpect(request.getContentExpect())
+                    .status(status)
+                    .category(category)
+                    .build();
+
+            complaint = complaintRepository.save(complaint);
+
+            // 첨부파일 처리
+            if (files != null && files.length > 0) {
+                saveAttachments(files, complaint);  // 파일 저장
+            }
+        } catch (IllegalArgumentException e) {
+            log.error("Argument error: ", e);
+            throw new RuntimeException("Validation failed: " + e.getMessage(), e);
+        } catch (IOException e) {
+            log.error("File processing error: ", e);
+            throw new RuntimeException("File upload failed", e);
+        } catch (Exception e) {
+            log.error("Unexpected error: ", e);
+            throw new RuntimeException("An unexpected error occurred while creating the complaint", e);
+        }
+    }
+
+    private void saveAttachments(MultipartFile[] files, Complaint complaint) throws IOException {
+        try {
+            for (MultipartFile file : files) {
+                String originalFileName = file.getOriginalFilename();
+                String modifiedFileName = System.currentTimeMillis() + "_" + originalFileName;
+
+                // 파일 저장 경로 지정
+                Path path = Paths.get(uploadDir + File.separator + modifiedFileName);
+                Files.write(path, file.getBytes());
+
+                // 첨부파일 엔티티 저장
+                Attachment attachment = Attachment.builder()
+                        .complaint(complaint)
+                        .uploadPath(path.toString())  // 파일 경로 저장
+                        .fileName(originalFileName)   // 원본 파일명 저장
+                        .modifiedName(modifiedFileName)  // 수정된 파일명 저장
+                        .build();
+
+                attachmentRepository.save(attachment);  // 첨부파일 정보 DB에 저장
+            }
+        } catch (IOException e) {
+            log.error("File saving error: ", e);
+            throw new IOException("Failed to save attachment files", e);
+        }
+    }
+
+
+
+
 
     @Transactional
     public void scrapComplaint(String token, ScrapRequest request) {

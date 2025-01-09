@@ -24,7 +24,11 @@ public enum SuccessStatus implements BaseCode {
     _GET_CATEGORY_COMPLAINTS_SUCCESS(200, "카테고리별 민원리스트 조회에 성공하였습니다."),
     _GET_KEYWORD_COMPLAINTS_SUCCESS(200, "키워드 검색 조회에 성공하였습니다."),
     _USER_DELETED(200, "회원탈퇴에 성공하였습니다."),
-    _DELETE_SCRAPS_SUCCESS(200,"스크랩 취소가 성공적으로 반영되었습니다.");
+    _DELETE_SCRAPS_SUCCESS(200,"스크랩 취소가 성공적으로 반영되었습니다."),
+    _UPDATE_SUCCESS(200, "민원이 성공적으로 수정되었습니다."),
+    _POST_SUCCESS(201, "첨부파일이 성공적으로 처리되었습니다."),
+    _POST_COMPLAINTS_SUCCESS (200, "민원이 성공적으로 작성되었습니다."),
+    _POST_COMMENTS_SUCCESS (200, "댓글 좋아요가 달렸습니다.");
 
     private final int code;
     private final String message;
