@@ -28,4 +28,14 @@ public enum FailureStatus implements BaseCode {
                 .message(message)
                 .build();
     }
+
+    public static FailureStatus getByCode(int code) {
+        for (FailureStatus status : values()) {
+            if (status.getCode() == code) {
+                return status;
+            }
+        }
+        return null; // 코드에 해당하는 상태가 없으면 null 반환
+    }
+
 }

@@ -88,8 +88,20 @@ public class ComplaintController {
             }
         }
 
-        complaintService.createComplaint(token, request, files);
+        //complaintService.createComplaint(token, request, files);
         return ApiResponse.onSuccess(null, SuccessStatus._POST_COMPLAINTS_SUCCESS);
+    }
+
+    @Operation(summary = "민원 수정")
+    @PutMapping("/{id}")
+    public ApiResponse<Void> updateComplaint(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long id,
+            @ModelAttribute ComplaintUpdateRequest request
+    ) {
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
+        //complaintService.ComplaintUpdate(accessToken, id, request);
+        return ApiResponse.onSuccess(null, SuccessStatus._PUT_COMPLAINTS_SUCCESS);
     }
 
 

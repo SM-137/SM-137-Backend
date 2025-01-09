@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // 기본 생성자는 protected
 @AllArgsConstructor
 public class Complaint extends BaseTimeEntity {
     @Id
@@ -64,4 +64,26 @@ public class Complaint extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL)
     private List<Attachment> attachments;
+
+    // 새로운 생성자 (public으로 수정)
+    public Complaint(User user, Tag tag, Category category, String title, String contentProb, String contentDir, String contentExpect, ComplaintStatus status) {
+        this.user = user;
+        this.tag = tag;
+        this.category = category;
+        this.title = title;
+        this.contentProb = contentProb;
+        this.contentDir = contentDir;
+        this.contentExpect = contentExpect;
+        this.status = status;
+    }
+
+    // 'setCategoryId' 메소드가 아니라 'setCategory' 메소드를 사용해야 합니다.
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    // setStatus 메소드도 ComplaintStatus 타입을 사용해야 합니다.
+    public void setStatus(ComplaintStatus status) {
+        this.status = status;
+    }
 }

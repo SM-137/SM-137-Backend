@@ -28,4 +28,12 @@ public class Attachment extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String modifiedName;
+
+    // Complaint 객체를 받는 생성자
+    public Attachment(Complaint complaint, String uploadPath, String fileName, String modifiedName) {
+        this.complaint = complaint;
+        this.uploadPath = uploadPath;
+        this.fileName = fileName;
+        this.modifiedName = modifiedName;
+    }
 }

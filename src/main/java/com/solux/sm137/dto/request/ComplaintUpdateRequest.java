@@ -15,7 +15,6 @@ import java.util.List;
 
 public class ComplaintUpdateRequest {
     private String complaintTitle;
-    private Boolean open;
     private String contentProb;
     private String contentDir;
     private String contentExpect;

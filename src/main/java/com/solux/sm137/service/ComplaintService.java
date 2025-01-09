@@ -1,10 +1,7 @@
 package com.solux.sm137.service;
 
 import com.solux.sm137.domain.*;
-import com.solux.sm137.dto.request.CategoryRequest;
-import com.solux.sm137.dto.request.ComplaintAnswerRequest;
-import com.solux.sm137.dto.request.ComplaintRequest;
-import com.solux.sm137.dto.request.ScrapRequest;
+import com.solux.sm137.dto.request.*;
 import com.solux.sm137.dto.response.*;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
@@ -41,91 +38,115 @@ public class ComplaintService {
 
     private final String uploadDir = System.getProperty("user.dir") + "/uploads";  // 파일 업로드 경로 설정
 
-    private static final Logger log = LoggerFactory.getLogger(ComplaintService.class);
-
-    // 민원 작성 메서드
+    // 민원 작성
     @Transactional
-    public void createComplaint(String token, ComplaintRequest request, MultipartFile[] files) throws IOException {
-        try {
-            // JWT 토큰 유효성 검사
-            if (!jwtTokenProvider.validateToken(token)) {
-                throw new IllegalArgumentException("Invalid Token");
-            }
+    public void createComplaint(String token, ComplaintRequest request) {
+        // JWT 토큰 검증
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
+        }
 
-            // 이메일 추출
-            String email = jwtTokenProvider.getEmailFromToken(token);
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        // 토큰에서 이메일 추출
+        String email = jwtTokenProvider.getEmailFromToken(token);
 
-            // 카테고리 조회
-            Category category = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+        // 사용자 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
-            // 상태 값 처리
-            ComplaintStatus status;
+        Category category = categoryRepository.findById(request.getCategoryId()) // 적절한 방식으로 ID로 조회
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 카테고리 ID입니다."));
+        // 민원 객체 생성
+        Complaint complaint = Complaint.builder()
+                .title(request.getTitle())
+                .contentProb(request.getContentProb())
+                .contentDir(request.getContentDir())
+                .contentExpect(request.getContentExpect())
+                .status(ComplaintStatus.valueOf(request.getStatus().toUpperCase()))  // 상태 설정
+                .category(category)  // 카테고리 설정
+                .build();  // 빌더 패턴을 사용하여 Complaint 객체 생성
+
+
+        // 민원 저장
+        complaintRepository.save(complaint);
+
+        // 첨부파일 처리
+        if (request.getAttachments() != null && !request.getAttachments().isEmpty()) {
+            saveAttachments(complaint, request.getAttachments());
+        }
+    }
+
+    // 첨부파일 저장 처리
+    private void saveAttachments(Complaint complaint, List<MultipartFile> attachments) {
+        for (MultipartFile file : attachments) {
+            String fileName = file.getOriginalFilename();
+            Path path = Paths.get("uploads/" + fileName);
             try {
-                status = ComplaintStatus.valueOf(request.getStatus().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid complaint status", e);
-            }
-
-            // 민원 객체 생성 및 저장
-            Complaint complaint = Complaint.builder()
-                    .user(user)
-                    .title(request.getTitle())
-                    .contentProb(request.getContentProb())
-                    .contentDir(request.getContentDir())
-                    .contentExpect(request.getContentExpect())
-                    .status(status)
-                    .category(category)
-                    .build();
-
-            complaint = complaintRepository.save(complaint);
-
-            // 첨부파일 처리
-            if (files != null && files.length > 0) {
-                saveAttachments(files, complaint);  // 파일 저장
-            }
-        } catch (IllegalArgumentException e) {
-            log.error("Argument error: ", e);
-            throw new RuntimeException("Validation failed: " + e.getMessage(), e);
-        } catch (IOException e) {
-            log.error("File processing error: ", e);
-            throw new RuntimeException("File upload failed", e);
-        } catch (Exception e) {
-            log.error("Unexpected error: ", e);
-            throw new RuntimeException("An unexpected error occurred while creating the complaint", e);
-        }
-    }
-
-    private void saveAttachments(MultipartFile[] files, Complaint complaint) throws IOException {
-        try {
-            for (MultipartFile file : files) {
-                String originalFileName = file.getOriginalFilename();
-                String modifiedFileName = System.currentTimeMillis() + "_" + originalFileName;
-
-                // 파일 저장 경로 지정
-                Path path = Paths.get(uploadDir + File.separator + modifiedFileName);
                 Files.write(path, file.getBytes());
-
-                // 첨부파일 엔티티 저장
-                Attachment attachment = Attachment.builder()
-                        .complaint(complaint)
-                        .uploadPath(path.toString())  // 파일 경로 저장
-                        .fileName(originalFileName)   // 원본 파일명 저장
-                        .modifiedName(modifiedFileName)  // 수정된 파일명 저장
-                        .build();
-
-                attachmentRepository.save(attachment);  // 첨부파일 정보 DB에 저장
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save attachment", e);
             }
-        } catch (IOException e) {
-            log.error("File saving error: ", e);
-            throw new IOException("Failed to save attachment files", e);
+
+            // 첨부파일 엔티티로 DB 저장 (예시)
+            //Attachment attachment = new Attachment(complaint, fileName);
+            //attachmentRepository.save(attachment);
         }
     }
 
+    //민원 수정
+    @Transactional
+    public void updateComplaint(String token, Long id, ComplaintUpdateRequest request) {
+        // JWT 토큰 검증
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
+        }
+        // 토큰에서 이메일 추출
+        String email = jwtTokenProvider.getEmailFromToken(token);
 
+        // 사용자 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
+        // 민원 조회
+        Complaint complaint = complaintRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+
+        // 민원이 현재 사용자 소유인지 확인
+        if (!complaint.getUser().getEmail().equals(email)) {
+            throw new BusinessException(FailureStatus._UNAUTHORIZED);
+        }
+
+        // 민원 상태가 "대기 중"이 아니면 수정 불가
+        if (!"WAITING".equals(complaint.getStatus())) {
+            throw new BusinessException(FailureStatus._CONFLICT);
+        }
+
+        // 민원 내용 수정
+        complaint.setTitle(request.getComplaintTitle());
+        complaint.setContentProb(request.getContentProb());
+        complaint.setContentDir(request.getContentDir());
+        complaint.setContentExpect(request.getContentExpect());
+
+        // 첨부파일 존재할 때 업데이트
+        if (request.getAttachments() != null && !request.getAttachments().isEmpty()) {
+            saveAttachments(request.getAttachments());
+        }
+
+        // 수정된 민원 저장
+        complaintRepository.save(complaint);
+    }
+
+    private void saveAttachments(List<MultipartFile> attachments) {
+        for (MultipartFile file : attachments) {
+            // 첨부파일 저장 로직 구현
+            String fileName = file.getOriginalFilename();
+            Path path = Paths.get("uploads/" + fileName);
+            try {
+                Files.write(path, file.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save attachment", e);
+            }
+        }
+    }
 
 
     @Transactional
