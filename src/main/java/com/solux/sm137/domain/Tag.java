@@ -1,5 +1,6 @@
 package com.solux.sm137.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,5 +21,6 @@ public class Tag {
     private String tagName;
 
     @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL)
+    @JsonBackReference
     private List<Complaint> complaints;
 }

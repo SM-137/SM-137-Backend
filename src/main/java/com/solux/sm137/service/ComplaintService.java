@@ -29,68 +29,74 @@ import org.slf4j.LoggerFactory;
 @Transactional
 @RequiredArgsConstructor
 public class ComplaintService {
-    private final ScrapRepository scrapRepository;
+
     private final ComplaintRepository complaintRepository;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AttachmentService attachmentService;
+    private final ScrapRepository scrapRepository;
     private final CategoryRepository categoryRepository;
-    private final AttachmentRepository attachmentRepository;
+    private final TagRepository tagRepository;
 
-    private final String uploadDir = System.getProperty("user.dir") + "/uploads";  // 파일 업로드 경로 설정
+    public ComplaintResponse createComplaint(ComplaintRequest complaintRequest, String token) {
 
-    // 민원 작성
-    @Transactional
-    public void createComplaint(String token, ComplaintRequest request) {
-        // JWT 토큰 검증
-        if (!jwtTokenProvider.validateToken(token)) {
-            throw new IllegalArgumentException("Invalid Token");
-        }
-
-        // 토큰에서 이메일 추출
+        // JWT 토큰에서 사용자 정보 추출
         String email = jwtTokenProvider.getEmailFromToken(token);
-
-        // 사용자 조회
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Category category = categoryRepository.findById(request.getCategoryId()) // 적절한 방식으로 ID로 조회
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 카테고리 ID입니다."));
-        // 민원 객체 생성
-        Complaint complaint = Complaint.builder()
-                .title(request.getTitle())
-                .contentProb(request.getContentProb())
-                .contentDir(request.getContentDir())
-                .contentExpect(request.getContentExpect())
-                .status(ComplaintStatus.valueOf(request.getStatus().toUpperCase()))  // 상태 설정
-                .category(category)  // 카테고리 설정
-                .build();  // 빌더 패턴을 사용하여 Complaint 객체 생성
+        // Tag와 Category 객체 조회
+        Tag tag = tagRepository.findById(complaintRequest.getTagId())
+                .orElseThrow(() -> new RuntimeException("Tag not found"));
+        Category category = categoryRepository.findById(complaintRequest.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
 
+        // 민원 생성
+        Complaint complaint = new Complaint(
+                user,
+                tag,
+                category,
+                complaintRequest.getTitle(),
+                complaintRequest.getContentProb(),
+                complaintRequest.getContentDir(),
+                complaintRequest.getContentExpect(),
+                ComplaintStatus.WAITING // 기본값으로 "대기 중" 설정
+        );
 
         // 민원 저장
-        complaintRepository.save(complaint);
+        Complaint savedComplaint = complaintRepository.save(complaint);
 
-        // 첨부파일 처리
-        if (request.getAttachments() != null && !request.getAttachments().isEmpty()) {
-            saveAttachments(complaint, request.getAttachments());
-        }
-    }
-
-    // 첨부파일 저장 처리
-    private void saveAttachments(Complaint complaint, List<MultipartFile> attachments) {
-        for (MultipartFile file : attachments) {
-            String fileName = file.getOriginalFilename();
-            Path path = Paths.get("uploads/" + fileName);
+        // 첨부파일 저장 (IOException 처리)
+        if (complaintRequest.getAttachments() != null && !complaintRequest.getAttachments().isEmpty()) {
             try {
-                Files.write(path, file.getBytes());
+                for (MultipartFile file : complaintRequest.getAttachments()) {
+                    attachmentService.saveAttachment(savedComplaint, file);
+                }
             } catch (IOException e) {
-                throw new RuntimeException("Failed to save attachment", e);
+                e.printStackTrace();
+                throw new RuntimeException("Error occurred while saving attachments");
             }
-
-            // 첨부파일 엔티티로 DB 저장 (예시)
-            //Attachment attachment = new Attachment(complaint, fileName);
-            //attachmentRepository.save(attachment);
         }
+
+        // 첨부파일 포함한 응답 반환
+        List<Attachment> attachmentList = attachmentService.getAttachmentsByComplaint(savedComplaint);
+        return new ComplaintResponse(
+                savedComplaint.getId(),
+                savedComplaint.getTitle(),
+                savedComplaint.getContentProb(),
+                savedComplaint.getContentDir(),
+                savedComplaint.getContentExpect(),
+                savedComplaint.getStatus(),
+                attachmentList,
+                savedComplaint.getUser().getId(),  // `userId`를 응답에 포함
+                savedComplaint.getCategory().getId(),
+                savedComplaint.getTag().getId()
+        );
     }
+
+
+
+
 
     //민원 수정
     @Transactional

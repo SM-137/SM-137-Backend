@@ -1,6 +1,7 @@
 package com.solux.sm137.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.solux.sm137.infra.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,21 +22,19 @@ public class Complaint extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference
+    @JsonManagedReference
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id", nullable = false)
-    @JsonBackReference
+    @JsonManagedReference
     private Tag tag;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
-    @JsonBackReference
     private Category category;
 
     @Column(nullable = false)
-    @JsonBackReference
     private String title;
 
     @Column(nullable = false)
@@ -48,7 +47,7 @@ public class Complaint extends BaseTimeEntity {
     private String contentExpect;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(15) DEFAULT 'WAITING'", nullable = false)
+    @Column(columnDefinition = "VARCHAR(15) DEFAULT 'WAITING'")
     private ComplaintStatus status;
 
     private String answer;
@@ -76,14 +75,6 @@ public class Complaint extends BaseTimeEntity {
         this.contentExpect = contentExpect;
         this.status = status;
     }
-
-    // 'setCategoryId' 메소드가 아니라 'setCategory' 메소드를 사용해야 합니다.
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    // setStatus 메소드도 ComplaintStatus 타입을 사용해야 합니다.
-    public void setStatus(ComplaintStatus status) {
-        this.status = status;
-    }
 }
+
+

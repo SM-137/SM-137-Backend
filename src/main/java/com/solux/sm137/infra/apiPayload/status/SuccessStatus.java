@@ -28,7 +28,6 @@ public enum SuccessStatus implements BaseCode {
     _UPDATE_SUCCESS(200, "민원이 성공적으로 수정되었습니다."),
     _POST_SUCCESS(201, "첨부파일이 성공적으로 처리되었습니다."),
     _POST_COMPLAINTS_SUCCESS (200, "민원이 성공적으로 작성되었습니다."),
-    //_POST_COMMENTS_SUCCESS (200, "댓글 좋아요가 달렸습니다."),
     _PUT_COMPLAINTS_SUCCESS (200, "민원이 성공적으로 수정되었습니다."),
     _GET_COMMENTS_SUCCESS (200, "댓글 조회에 성공하였습니다."),
     _POST_COMMENTS_SUCCESS(201, "댓글이 성공적으로 작성되었습니다."),
