@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
@@ -18,4 +19,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     // 부모 카테고리 정보로 조회하는 쿼리 (findCategoryNamesByCategoryId 메서드를 수정)
     @Query("SELECT c.categoryName FROM Category c WHERE c.parentCategory.id = :categoryId")
     List<String> findCategoryNamesByParentCategoryId(@Param("categoryId") Long categoryId);
+
+    Optional<Category> findByCategoryName(String categoryName);
 }

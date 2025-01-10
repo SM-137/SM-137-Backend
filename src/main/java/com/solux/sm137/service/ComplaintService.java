@@ -47,9 +47,9 @@ public class ComplaintService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Tag와 Category 객체 조회
-        Tag tag = tagRepository.findById(complaintRequest.getTagId())
+        Tag tag = tagRepository.findByTagName(complaintRequest.getTagName())
                 .orElseThrow(() -> new RuntimeException("Tag not found"));
-        Category category = categoryRepository.findById(complaintRequest.getCategoryId())
+        Category category = categoryRepository.findByCategoryName(complaintRequest.getCategoryName())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         // 민원 생성

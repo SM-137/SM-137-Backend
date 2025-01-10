@@ -8,10 +8,10 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.http.MediaType;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Configuration
-@EnableWebMvc
 public class SwaggerConfig {
 
     @Bean
@@ -20,9 +20,12 @@ public class SwaggerConfig {
                 .version("v1.0") //버전
                 .title("SM-137 API") //이름
                 .description("숙명여대 민원 API"); //설명
+
         String jwtSchemeName = "JWT TOKEN";
+
         // API 요청 헤더에 인증정보 포함
         SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwtSchemeName);
+
         // SecuritySchemes 등록
         Components components = new Components()
                 .addSecuritySchemes(jwtSchemeName, new SecurityScheme()

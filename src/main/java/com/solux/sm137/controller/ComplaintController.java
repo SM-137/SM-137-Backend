@@ -11,14 +11,17 @@ import com.solux.sm137.infra.apiPayload.status.SuccessStatus;
 import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
 import com.solux.sm137.service.ComplaintService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 @RestController
 @RequestMapping("/api/complaints")
 @RequiredArgsConstructor
@@ -27,16 +30,18 @@ public class ComplaintController {
     private final ComplaintService complaintService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @PostMapping
+    @Operation(summary = "민원 작성", description = "민원 작성 시 파일 첨부 가능")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<ComplaintResponse> createComplaint(
             @RequestHeader("Authorization") String token,
             @RequestParam("title") String title,
             @RequestParam("contentProb") String contentProb,
             @RequestParam("contentDir") String contentDir,
             @RequestParam("contentExpect") String contentExpect,
-            @RequestParam("tagId") Long tagId,
-            @RequestParam("categoryId") Long categoryId,
+            @RequestParam("tagName") String tagName,
+            @RequestParam("categoryName") String categoryName,
             @RequestParam(value = "attachments", required = false) MultipartFile[] attachments) {
+
 
         // 필수 파라미터 유효성 검사
         if (title == null || contentProb == null || contentDir == null || contentExpect == null ) {
@@ -51,8 +56,8 @@ public class ComplaintController {
 
         // ComplaintRequest 객체 생성
         ComplaintRequest complaintRequest = new ComplaintRequest(
-                categoryId,
-                tagId,
+                categoryName,
+                tagName,
                 title,
                 contentProb,
                 contentDir,
