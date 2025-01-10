@@ -164,7 +164,7 @@ public class ComplaintService {
     public List<KeywordSearchResponse> getComplaintKeyword(String keyword) {
         List<Complaint> complaints = complaintRepository.findByKeyword(keyword).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         if (complaints.isEmpty()) {
-            throw new BusinessException(FailureStatus._NOT_FOUND);
+            return null;
         }
         return complaints.stream()
                 .map(complaint -> new KeywordSearchResponse(

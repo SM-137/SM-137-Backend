@@ -52,7 +52,7 @@ public class ComplaintController {
     }
 
     @Operation(summary = "전체민원조회")
-    @GetMapping("/category")
+    @PostMapping("/category")
     public ApiResponse<List<CategoryResponse>> getComplaintCategory(
             @RequestBody CategoryRequest request
     ) {
