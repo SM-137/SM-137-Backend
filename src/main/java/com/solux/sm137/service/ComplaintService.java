@@ -120,7 +120,7 @@ public class ComplaintService {
         complaint.setStatus(request.getComplaintStatus());
         complaintRepository.save(complaint);
 
-        return new ComplaintAnswerResponse(complaint.getId().toString(), complaint.getAnswer());
+        return new ComplaintAnswerResponse(complaint.getId(), complaint.getAnswer());
     }
 
     @Transactional(readOnly = true)
