@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 public class ComplaintAnswerResponse {
-    private String complaintId;
+    private Long complaintId;
     private String answer;
 }
