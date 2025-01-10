@@ -18,5 +18,4 @@ public class ComplaintUpdateRequest {
     private String contentProb;
     private String contentDir;
     private String contentExpect;
-    private List<MultipartFile> attachments;
 }

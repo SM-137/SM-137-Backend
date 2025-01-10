@@ -96,7 +96,7 @@ public class ComplaintController {
 
         try {
             // 민원 수정 처리
-            complaintService.updateComplaint(accessToken, id, request, attachments);
+            complaintService.updateComplaint(accessToken, id, request);
             return ApiResponse.onSuccess(null, SuccessStatus._PUT_COMPLAINTS_UPDATE_SUCCESS);
         } catch (Exception e) {
             // 예외 발생 시 오류 처리

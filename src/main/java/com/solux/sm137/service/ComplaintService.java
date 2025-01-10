@@ -92,7 +92,7 @@ public class ComplaintService {
     }
 
     @Transactional
-    public void updateComplaint(String token, Long id, ComplaintUpdateRequest request, MultipartFile[] attachments) {
+    public void updateComplaint(String token, Long id, ComplaintUpdateRequest request) {
         // JWT 토큰에서 사용자 정보 추출
         String email = jwtTokenProvider.getEmailFromToken(token);
         User user = userRepository.findByEmail(email)
@@ -118,27 +118,10 @@ public class ComplaintService {
         complaint.setContentDir(request.getContentDir());
         complaint.setContentExpect(request.getContentExpect());
 
-        // 기존 첨부파일 삭제
-        deleteOldAttachments(complaint);
-
-        // 새로운 첨부파일이 있다면 저장
-        if (attachments != null && attachments.length > 0) {
-            for (MultipartFile file : attachments) {
-                attachmentService.saveAttachment(complaint, file);
-            }
-        }
-
         // 수정된 민원 저장
         complaintRepository.save(complaint);
     }
 
-    private void deleteOldAttachments(Complaint complaint) {
-        List<Attachment> existingAttachments = complaint.getAttachments();
-        for (Attachment attachment : existingAttachments) {
-            // 파일 시스템에서 삭제
-            attachmentService.deleteAttachment(attachment);
-        }
-    }
 
 
 
