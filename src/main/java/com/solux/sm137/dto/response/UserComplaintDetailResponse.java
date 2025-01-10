@@ -27,4 +27,6 @@ public class UserComplaintDetailResponse {
     private String tag;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+    private boolean like;
+    private boolean scrap;
 }

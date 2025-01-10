@@ -218,8 +218,22 @@ public class ComplaintService {
     }
 
     @Transactional(readOnly = true)
-    public UserComplaintDetailResponse getUserComplaintDetail(Long complaintId) {
-        Complaint complaint = complaintRepository.findById(complaintId).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+    public UserComplaintDetailResponse getUserComplaintDetail(String token, Long complaintId) {
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
+        }
+        String email = jwtTokenProvider.getEmailFromToken(token);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+
+        Optional<Complaint> complaintOptional = complaintRepository.findById(complaintId);
+        if (complaintOptional.isEmpty()) {
+            return null;
+        }
+
+        Complaint complaint = complaintOptional.get();
+        boolean isLiked = complaintRepository.existsLikeByComplaintAndUser(complaint, user);
+        boolean isScrapped = complaintRepository.existsScrapByComplaintAndUser(complaint, user);
+
         return new UserComplaintDetailResponse(
                 complaint.getId(),
                 complaint.getStatus(),
@@ -232,7 +246,9 @@ public class ComplaintService {
                 complaint.getScraps().size(),
                 complaint.getCategory().getCategoryName(),
                 complaint.getTag().getTagName(),
-                complaint.getCreatedAt()
+                complaint.getCreatedAt(),
+                isLiked,
+                isScrapped
         );
     }
 
@@ -240,7 +256,7 @@ public class ComplaintService {
     public List<CategoryResponse> getComplaintCategory(CategoryRequest request) {
         List<Complaint> complaints = complaintRepository.findByCategoryName(request.getCategoryName()).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         if (complaints.isEmpty()) {
-            throw new BusinessException(FailureStatus._NOT_FOUND);
+            return null;
         }
         return complaints.stream()
                 .map(complaint -> new CategoryResponse(
