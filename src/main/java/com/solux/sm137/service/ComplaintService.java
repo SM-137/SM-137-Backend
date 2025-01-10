@@ -1,35 +1,129 @@
 package com.solux.sm137.service;
 
-import com.solux.sm137.domain.Complaint;
-import com.solux.sm137.domain.CompositeId;
-import com.solux.sm137.domain.Scrap;
-import com.solux.sm137.domain.User;
-import com.solux.sm137.dto.request.CategoryRequest;
-import com.solux.sm137.dto.request.ComplaintAnswerRequest;
-import com.solux.sm137.dto.request.ScrapRequest;
+import com.solux.sm137.domain.*;
+import com.solux.sm137.dto.request.*;
 import com.solux.sm137.dto.response.*;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
-import com.solux.sm137.repository.ComplaintRepository;
-import com.solux.sm137.repository.ScrapRepository;
-import com.solux.sm137.repository.UserRepository;
+import com.solux.sm137.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ComplaintService {
-    private final ScrapRepository scrapRepository;
+
     private final ComplaintRepository complaintRepository;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AttachmentService attachmentService;
+    private final ScrapRepository scrapRepository;
+    private final CategoryRepository categoryRepository;
+    private final TagRepository tagRepository;
+
+    @Transactional
+    public ComplaintResponse createComplaint(ComplaintRequest complaintRequest, String token) {
+
+        // JWT 토큰에서 사용자 정보 추출
+        String email = jwtTokenProvider.getEmailFromToken(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Tag와 Category 객체 조회
+        Tag tag = tagRepository.findById(complaintRequest.getTagId())
+                .orElseThrow(() -> new RuntimeException("Tag not found"));
+        Category category = categoryRepository.findById(complaintRequest.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        // 민원 생성
+        Complaint complaint = new Complaint(
+                user,
+                tag,
+                category,
+                complaintRequest.getTitle(),
+                complaintRequest.getContentProb(),
+                complaintRequest.getContentDir(),
+                complaintRequest.getContentExpect(),
+                ComplaintStatus.WAITING // 기본값으로 "대기 중" 설정
+        );
+
+        // 민원 저장
+        Complaint savedComplaint = complaintRepository.save(complaint);
+
+        // 첨부파일 저장
+        if (complaintRequest.getAttachments() != null && !complaintRequest.getAttachments().isEmpty()) {
+            for (MultipartFile file : complaintRequest.getAttachments()) {
+                attachmentService.saveAttachment(savedComplaint, file);
+            }
+        }
+
+
+        // 첨부파일 포함한 응답 반환
+        List<Attachment> attachmentList = attachmentService.getAttachmentsByComplaint(savedComplaint);
+        return new ComplaintResponse(
+                savedComplaint.getId(),
+                savedComplaint.getTitle(),
+                savedComplaint.getContentProb(),
+                savedComplaint.getContentDir(),
+                savedComplaint.getContentExpect(),
+                savedComplaint.getStatus(),
+                attachmentList,
+                savedComplaint.getUser().getId(),  // userId를 응답에 포함
+                savedComplaint.getCategory().getId(),
+                savedComplaint.getTag().getId()
+        );
+    }
+
+    @Transactional
+    public void updateComplaint(String token, Long id, ComplaintUpdateRequest request) {
+        // JWT 토큰에서 사용자 정보 추출
+        String email = jwtTokenProvider.getEmailFromToken(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+
+        // 민원 조회
+        Complaint complaint = complaintRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+
+        // 민원이 현재 사용자 소유인지 확인
+        if (!complaint.getUser().getEmail().equals(email)) {
+            throw new BusinessException(FailureStatus._UNAUTHORIZED);
+        }
+
+        // 민원 상태가 "대기 중"이 아니면 수정 불가
+        if (!complaint.getStatus().equals(ComplaintStatus.WAITING)) {
+            throw new BusinessException(FailureStatus._CONFLICT);
+        }
+
+        // 민원 내용 수정
+        complaint.setTitle(request.getTitle());
+        complaint.setContentProb(request.getContentProb());
+        complaint.setContentDir(request.getContentDir());
+        complaint.setContentExpect(request.getContentExpect());
+
+        // 수정된 민원 저장
+        complaintRepository.save(complaint);
+    }
+
+
+
 
     @Transactional
     public void scrapComplaint(String token, ScrapRequest request) {

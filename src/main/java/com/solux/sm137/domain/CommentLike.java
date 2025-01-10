@@ -5,8 +5,9 @@ import lombok.*;
 
 @Entity
 @Getter
+@Setter
 @Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @AllArgsConstructor
 public class CommentLike {
     @Id
