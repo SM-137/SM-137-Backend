@@ -8,21 +8,13 @@ import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
 import com.solux.sm137.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 @Service
@@ -92,18 +84,20 @@ public class ComplaintService {
     }
 
     @Transactional
-    public void updateComplaint(String token, Long id, ComplaintUpdateRequest request) {
-        // JWT 토큰에서 사용자 정보 추출
+    public void updateComplaint(String token, Long complaintId, ComplaintUpdateRequest request) {
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
+        }
         String email = jwtTokenProvider.getEmailFromToken(token);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
         // 민원 조회
-        Complaint complaint = complaintRepository.findById(id)
+        Complaint complaint = complaintRepository.findById(complaintId)
                 .orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
 
         // 민원이 현재 사용자 소유인지 확인
-        if (!complaint.getUser().getEmail().equals(email)) {
+        if (!complaint.getUser().getId().equals(user.getId())) {
             throw new BusinessException(FailureStatus._UNAUTHORIZED);
         }
 
@@ -121,8 +115,6 @@ public class ComplaintService {
         // 수정된 민원 저장
         complaintRepository.save(complaint);
     }
-
-
 
 
     @Transactional

@@ -4,7 +4,10 @@ import com.solux.sm137.dto.request.CategoryRequest;
 import com.solux.sm137.dto.request.ComplaintRequest;
 import com.solux.sm137.dto.request.ComplaintUpdateRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
-import com.solux.sm137.dto.response.*;
+import com.solux.sm137.dto.response.CategoryResponse;
+import com.solux.sm137.dto.response.ComplaintResponse;
+import com.solux.sm137.dto.response.KeywordSearchResponse;
+import com.solux.sm137.dto.response.UserComplaintDetailResponse;
 import com.solux.sm137.infra.apiPayload.base.ApiResponse;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.infra.apiPayload.status.SuccessStatus;
@@ -27,6 +30,7 @@ public class ComplaintController {
     private final ComplaintService complaintService;
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Operation(summary = "민원 작성")
     @PostMapping
     public ApiResponse<ComplaintResponse> createComplaint(
             @RequestHeader("Authorization") String token,
@@ -39,7 +43,7 @@ public class ComplaintController {
             @RequestParam(value = "attachments", required = false) MultipartFile[] attachments) {
 
         // 필수 파라미터 유효성 검사
-        if (title == null || contentProb == null || contentDir == null || contentExpect == null ) {
+        if (title == null || contentProb == null || contentDir == null || contentExpect == null) {
             return buildErrorResponse(400, "Missing required fields.");
         }
 
@@ -76,36 +80,16 @@ public class ComplaintController {
                 ApiResponse.onFailure(null, FailureStatus._INTERNAL_SERVER_ERROR);
     }
 
-
-
     @Operation(summary = "민원 수정")
-    @PutMapping("/{id}")
+    @PatchMapping("/{complaintId}")
     public ApiResponse<Void> updateComplaint(
             @RequestHeader("Authorization") String token,
-            @PathVariable Long id,
-            @ModelAttribute ComplaintUpdateRequest request,
-            @RequestParam(value = "attachments", required = false) MultipartFile[] attachments) {
-
-        // JWT 토큰에서 accessToken 추출
-        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token.trim();
-
-        // 토큰 검증
-        if (!jwtTokenProvider.validateToken(accessToken)) {
-            return buildErrorResponse(401, "Unauthorized: Invalid or expired token.");
-        }
-
-        try {
-            // 민원 수정 처리
-            complaintService.updateComplaint(accessToken, id, request);
-            return ApiResponse.onSuccess(null, SuccessStatus._PUT_COMPLAINTS_UPDATE_SUCCESS);
-        } catch (Exception e) {
-            // 예외 발생 시 오류 처리
-            return ApiResponse.onFailure(null, FailureStatus._BAD_REQUEST);
-        }
+            @PathVariable Long complaintId,
+            @RequestBody ComplaintUpdateRequest request) {
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
+        complaintService.updateComplaint(accessToken, complaintId, request);
+        return ApiResponse.onSuccess(null, SuccessStatus._PUT_COMPLAINTS_UPDATE_SUCCESS);
     }
-
-
-
 
     // 민원 스크랩 추가
     @Operation(summary = "민원스크랩")
@@ -121,7 +105,7 @@ public class ComplaintController {
 
     // 민원 스크랩 취소
     @Operation(summary = "민원스크랩 취소")
-    @DeleteMapping("/scrap/delete")
+    @DeleteMapping("/scrap")
     public ApiResponse<Void> deleteScrapComplaint(
             @RequestHeader("Authorization") String token,
             @RequestBody ScrapRequest request
@@ -158,7 +142,7 @@ public class ComplaintController {
     @GetMapping("/search")
     public ApiResponse<List<KeywordSearchResponse>> getComplaintKeyword(
             @RequestParam(required = true) String keyword
-    ){
+    ) {
         List<KeywordSearchResponse> keywordSearchResponses = complaintService.getComplaintKeyword(keyword);
         return ApiResponse.onSuccess(keywordSearchResponses, SuccessStatus._GET_KEYWORD_COMPLAINTS_SUCCESS);
     }
