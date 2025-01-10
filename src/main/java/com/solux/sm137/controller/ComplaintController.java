@@ -135,9 +135,11 @@ public class ComplaintController {
     @Operation(summary = "민원내용 상세")
     @GetMapping("/detail/{complaintId}")
     public ApiResponse<UserComplaintDetailResponse> getComplaintDetail(
+            @RequestHeader("Authorization") String token,
             @PathVariable Long complaintId
     ) {
-        UserComplaintDetailResponse detailResponse = complaintService.getUserComplaintDetail(complaintId);
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
+        UserComplaintDetailResponse detailResponse = complaintService.getUserComplaintDetail(accessToken, complaintId);
         return ApiResponse.onSuccess(detailResponse, SuccessStatus._GET_DETAIL_SUCCESS);
     }
 

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-
 @Repository
 public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
     Optional<List<Complaint>> findByUser(User user);
@@ -24,4 +23,13 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
             nativeQuery = true)
     Optional<List<Complaint>> findByKeyword(@Param("keyword") String keyword);
 
+    @Query("SELECT CASE WHEN COUNT(s) > 0 THEN true ELSE false END " +
+            "FROM Scrap s WHERE s.complaint = :complaint AND s.user = :user")
+    boolean existsScrapByComplaintAndUser(@Param("complaint") Complaint complaint, @Param("user") User user);
+
+    @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END " +
+            "FROM ComplaintLike l WHERE l.complaint = :complaint AND l.user = :user")
+    boolean existsLikeByComplaintAndUser(@Param("complaint") Complaint complaint, @Param("user") User user);
+
 }
+
