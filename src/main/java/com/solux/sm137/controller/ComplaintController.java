@@ -27,6 +27,7 @@ public class ComplaintController {
     private final ComplaintService complaintService;
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Operation(summary = "민원 작성")
     @PostMapping
     public ApiResponse<ComplaintResponse> createComplaint(
             @RequestHeader("Authorization") String token,
@@ -76,8 +77,6 @@ public class ComplaintController {
                 ApiResponse.onFailure(null, FailureStatus._INTERNAL_SERVER_ERROR);
     }
 
-
-
     @Operation(summary = "민원 수정")
     @PutMapping("/{id}")
     public ApiResponse<Void> updateComplaint(
@@ -103,9 +102,6 @@ public class ComplaintController {
             return ApiResponse.onFailure(null, FailureStatus._BAD_REQUEST);
         }
     }
-
-
-
 
     // 민원 스크랩 추가
     @Operation(summary = "민원스크랩")
