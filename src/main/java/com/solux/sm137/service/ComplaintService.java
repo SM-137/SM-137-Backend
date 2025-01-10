@@ -38,6 +38,7 @@ public class ComplaintService {
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
 
+    @Transactional
     public ComplaintResponse createComplaint(ComplaintRequest complaintRequest, String token) {
 
         // JWT 토큰에서 사용자 정보 추출
@@ -66,17 +67,13 @@ public class ComplaintService {
         // 민원 저장
         Complaint savedComplaint = complaintRepository.save(complaint);
 
-        // 첨부파일 저장 (IOException 처리)
+        // 첨부파일 저장
         if (complaintRequest.getAttachments() != null && !complaintRequest.getAttachments().isEmpty()) {
-            try {
-                for (MultipartFile file : complaintRequest.getAttachments()) {
-                    attachmentService.saveAttachment(savedComplaint, file);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Error occurred while saving attachments");
+            for (MultipartFile file : complaintRequest.getAttachments()) {
+                attachmentService.saveAttachment(savedComplaint, file);
             }
         }
+
 
         // 첨부파일 포함한 응답 반환
         List<Attachment> attachmentList = attachmentService.getAttachmentsByComplaint(savedComplaint);
@@ -88,27 +85,16 @@ public class ComplaintService {
                 savedComplaint.getContentExpect(),
                 savedComplaint.getStatus(),
                 attachmentList,
-                savedComplaint.getUser().getId(),  // `userId`를 응답에 포함
+                savedComplaint.getUser().getId(),  // userId를 응답에 포함
                 savedComplaint.getCategory().getId(),
                 savedComplaint.getTag().getId()
         );
     }
 
-
-
-
-
-    //민원 수정
     @Transactional
-    public void updateComplaint(String token, Long id, ComplaintUpdateRequest request) {
-        // JWT 토큰 검증
-        if (!jwtTokenProvider.validateToken(token)) {
-            throw new IllegalArgumentException("Invalid Token");
-        }
-        // 토큰에서 이메일 추출
+    public void updateComplaint(String token, Long id, ComplaintUpdateRequest request, MultipartFile[] attachments) {
+        // JWT 토큰에서 사용자 정보 추출
         String email = jwtTokenProvider.getEmailFromToken(token);
-
-        // 사용자 조회
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
@@ -122,37 +108,38 @@ public class ComplaintService {
         }
 
         // 민원 상태가 "대기 중"이 아니면 수정 불가
-        if (!"WAITING".equals(complaint.getStatus())) {
+        if (!complaint.getStatus().equals(ComplaintStatus.WAITING)) {
             throw new BusinessException(FailureStatus._CONFLICT);
         }
 
         // 민원 내용 수정
-        complaint.setTitle(request.getComplaintTitle());
+        complaint.setTitle(request.getTitle());
         complaint.setContentProb(request.getContentProb());
         complaint.setContentDir(request.getContentDir());
         complaint.setContentExpect(request.getContentExpect());
 
-        // 첨부파일 존재할 때 업데이트
-        if (request.getAttachments() != null && !request.getAttachments().isEmpty()) {
-            saveAttachments(request.getAttachments());
+        // 기존 첨부파일 삭제
+        deleteOldAttachments(complaint);
+
+        // 새로운 첨부파일이 있다면 저장
+        if (attachments != null && attachments.length > 0) {
+            for (MultipartFile file : attachments) {
+                attachmentService.saveAttachment(complaint, file);
+            }
         }
 
         // 수정된 민원 저장
         complaintRepository.save(complaint);
     }
 
-    private void saveAttachments(List<MultipartFile> attachments) {
-        for (MultipartFile file : attachments) {
-            // 첨부파일 저장 로직 구현
-            String fileName = file.getOriginalFilename();
-            Path path = Paths.get("uploads/" + fileName);
-            try {
-                Files.write(path, file.getBytes());
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to save attachment", e);
-            }
+    private void deleteOldAttachments(Complaint complaint) {
+        List<Attachment> existingAttachments = complaint.getAttachments();
+        for (Attachment attachment : existingAttachments) {
+            // 파일 시스템에서 삭제
+            attachmentService.deleteAttachment(attachment);
         }
     }
+
 
 
     @Transactional

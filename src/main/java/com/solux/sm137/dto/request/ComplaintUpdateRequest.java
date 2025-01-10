@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 
 public class ComplaintUpdateRequest {
-    private String complaintTitle;
+    private String title;
     private String contentProb;
     private String contentDir;
     private String contentExpect;

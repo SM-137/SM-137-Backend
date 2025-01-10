@@ -83,12 +83,28 @@ public class ComplaintController {
     public ApiResponse<Void> updateComplaint(
             @RequestHeader("Authorization") String token,
             @PathVariable Long id,
-            @ModelAttribute ComplaintUpdateRequest request
-    ) {
-        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
-        //complaintService.ComplaintUpdate(accessToken, id, request);
-        return ApiResponse.onSuccess(null, SuccessStatus._PUT_COMPLAINTS_SUCCESS);
+            @ModelAttribute ComplaintUpdateRequest request,
+            @RequestParam(value = "attachments", required = false) MultipartFile[] attachments) {
+
+        // JWT 토큰에서 accessToken 추출
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token.trim();
+
+        // 토큰 검증
+        if (!jwtTokenProvider.validateToken(accessToken)) {
+            return buildErrorResponse(401, "Unauthorized: Invalid or expired token.");
+        }
+
+        try {
+            // 민원 수정 처리
+            complaintService.updateComplaint(accessToken, id, request, attachments);
+            return ApiResponse.onSuccess(null, SuccessStatus._PUT_COMPLAINTS_UPDATE_SUCCESS);
+        } catch (Exception e) {
+            // 예외 발생 시 오류 처리
+            return ApiResponse.onFailure(null, FailureStatus._BAD_REQUEST);
+        }
     }
+
+
 
 
     // 민원 스크랩 추가
