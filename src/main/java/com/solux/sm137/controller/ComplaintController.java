@@ -14,11 +14,12 @@ import com.solux.sm137.infra.apiPayload.status.SuccessStatus;
 import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
 import com.solux.sm137.service.ComplaintService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -31,46 +32,16 @@ public class ComplaintController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "민원 작성")
-    @PostMapping
-    public ApiResponse<ComplaintResponse> createComplaint(
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String createComplaint(
             @RequestHeader("Authorization") String token,
-            @RequestParam("title") String title,
-            @RequestParam("contentProb") String contentProb,
-            @RequestParam("contentDir") String contentDir,
-            @RequestParam("contentExpect") String contentExpect,
-            @RequestParam("tagId") Long tagId,
-            @RequestParam("categoryId") Long categoryId,
-            @RequestParam(value = "attachments", required = false) MultipartFile[] attachments) {
-
-        // 필수 파라미터 유효성 검사
-        if (title == null || contentProb == null || contentDir == null || contentExpect == null) {
-            return buildErrorResponse(400, "Missing required fields.");
-        }
-
-        // JWT 토큰 검증
-        String accessToken = token != null && token.startsWith("Bearer ") ? token.substring(7).trim() : token.trim();
-        if (!jwtTokenProvider.validateToken(accessToken)) {
-            return buildErrorResponse(401, "Unauthorized: Invalid or expired token.");
-        }
-
-        // ComplaintRequest 객체 생성
-        ComplaintRequest complaintRequest = new ComplaintRequest(
-                categoryId,
-                tagId,
-                title,
-                contentProb,
-                contentDir,
-                contentExpect,
-                Arrays.asList(attachments)  // MultipartFile[]을 List로 변환
-        );
-
-        // 정상적인 처리 로직 (파일 처리 포함)
-        try {
-            ComplaintResponse complaintResponse = complaintService.createComplaint(complaintRequest, accessToken);
-            return ApiResponse.onSuccess(complaintResponse, SuccessStatus._POST_COMPLAINTS_SUCCESS);
-        } catch (Exception e) {
-            return ApiResponse.onFailure(null, FailureStatus._BAD_REQUEST);
-        }
+            @RequestPart("requestDto") @Valid ComplaintRequest complaintRequest,
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
+    ) {
+        String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
+        complaintService.createComplaint(accessToken, complaintRequest, attachments);
+//        return ApiResponse.onSuccess(null, SuccessStatus._POST_COMPLAINTS_SUCCESS);
+        return "성공";
     }
 
 

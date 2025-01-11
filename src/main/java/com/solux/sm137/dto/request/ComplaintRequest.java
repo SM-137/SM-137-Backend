@@ -16,11 +16,10 @@ import java.util.List;
 @Setter
 
 public class ComplaintRequest {
-    private Long categoryId;
-    private Long tagId;
     private String title;
     private String contentProb;
     private String contentDir;
     private String contentExpect;
-    private List<MultipartFile> attachments;
+    private String categoryName;
+    private String tagName;
 }

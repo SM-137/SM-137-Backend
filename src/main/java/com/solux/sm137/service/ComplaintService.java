@@ -6,12 +6,14 @@ import com.solux.sm137.dto.response.*;
 import com.solux.sm137.infra.apiPayload.handler.BusinessException;
 import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
+import com.solux.sm137.infra.s3.AmazonS3Manager;
 import com.solux.sm137.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,58 +31,47 @@ public class ComplaintService {
     private final ScrapRepository scrapRepository;
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
+    private final AmazonS3Manager amazonS3Manager;
 
     @Transactional
-    public ComplaintResponse createComplaint(ComplaintRequest complaintRequest, String token) {
-
-        // JWT 토큰에서 사용자 정보 추출
+    public void createComplaint(String token, ComplaintRequest complaintRequest, List<MultipartFile> attachments) {
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid Token");
+        }
         String email = jwtTokenProvider.getEmailFromToken(token);
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
-        // Tag와 Category 객체 조회
-        Tag tag = tagRepository.findById(complaintRequest.getTagId())
-                .orElseThrow(() -> new RuntimeException("Tag not found"));
-        Category category = categoryRepository.findById(complaintRequest.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+        // 첨부파일 처리
+        if (attachments == null) attachments = new ArrayList<>();
+        List<String> imageUrls = amazonS3Manager.uploadFiles(attachments);
+
+        // 카테고리 저장
+        Category category = Category.builder()
+                .categoryName(complaintRequest.getCategoryName())
+                .build();
+        categoryRepository.save(category);
+
+        // 태그 저장
+        Tag tag = Tag.builder()
+                .tagName(complaintRequest.getTagName())
+                .build();
+        tagRepository.save(tag);
 
         // 민원 생성
-        Complaint complaint = new Complaint(
-                user,
-                tag,
-                category,
-                complaintRequest.getTitle(),
-                complaintRequest.getContentProb(),
-                complaintRequest.getContentDir(),
-                complaintRequest.getContentExpect(),
-                ComplaintStatus.WAITING // 기본값으로 "대기 중" 설정
-        );
+        Complaint complaint = Complaint.builder()
+                .user(user)
+                .tag(tag)
+                .category(category)
+                .title(complaintRequest.getTitle())
+                .contentProb(complaintRequest.getContentProb())
+                .contentDir(complaintRequest.getContentDir())
+                .contentExpect(complaintRequest.getContentExpect())
+                .status(ComplaintStatus.WAITING)
+                .build();
 
         // 민원 저장
-        Complaint savedComplaint = complaintRepository.save(complaint);
-
-        // 첨부파일 저장
-        if (complaintRequest.getAttachments() != null && !complaintRequest.getAttachments().isEmpty()) {
-            for (MultipartFile file : complaintRequest.getAttachments()) {
-                attachmentService.saveAttachment(savedComplaint, file);
-            }
-        }
-
-
-        // 첨부파일 포함한 응답 반환
-        List<Attachment> attachmentList = attachmentService.getAttachmentsByComplaint(savedComplaint);
-        return new ComplaintResponse(
-                savedComplaint.getId(),
-                savedComplaint.getTitle(),
-                savedComplaint.getContentProb(),
-                savedComplaint.getContentDir(),
-                savedComplaint.getContentExpect(),
-                savedComplaint.getStatus(),
-                attachmentList,
-                savedComplaint.getUser().getId(),  // userId를 응답에 포함
-                savedComplaint.getCategory().getId(),
-                savedComplaint.getTag().getId()
-        );
+        complaintRepository.save(complaint);
     }
 
     @Transactional
