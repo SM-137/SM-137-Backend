@@ -5,11 +5,9 @@ import com.solux.sm137.dto.request.ComplaintRequest;
 import com.solux.sm137.dto.request.ComplaintUpdateRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
 import com.solux.sm137.dto.response.CategoryResponse;
-import com.solux.sm137.dto.response.ComplaintResponse;
 import com.solux.sm137.dto.response.KeywordSearchResponse;
 import com.solux.sm137.dto.response.UserComplaintDetailResponse;
 import com.solux.sm137.infra.apiPayload.base.ApiResponse;
-import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.infra.apiPayload.status.SuccessStatus;
 import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
 import com.solux.sm137.service.ComplaintService;
@@ -32,23 +30,15 @@ public class ComplaintController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "민원 작성")
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String createComplaint(
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiResponse<Void> createComplaint(
             @RequestHeader("Authorization") String token,
             @RequestPart("requestDto") @Valid ComplaintRequest complaintRequest,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
         String accessToken = token.startsWith("Bearer ") ? token.substring(7).trim() : token;
         complaintService.createComplaint(accessToken, complaintRequest, attachments);
-//        return ApiResponse.onSuccess(null, SuccessStatus._POST_COMPLAINTS_SUCCESS);
-        return "성공";
-    }
-
-
-    private ApiResponse buildErrorResponse(int code, String message) {
-        FailureStatus failureStatus = FailureStatus.getByCode(code);
-        return failureStatus != null ? ApiResponse.onFailure(null, failureStatus) :
-                ApiResponse.onFailure(null, FailureStatus._INTERNAL_SERVER_ERROR);
+        return ApiResponse.onSuccess(null, SuccessStatus._POST_COMPLAINTS_SUCCESS);
     }
 
     @Operation(summary = "민원 수정")

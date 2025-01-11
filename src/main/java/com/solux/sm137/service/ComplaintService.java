@@ -23,11 +23,10 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class ComplaintService {
-
+    private final AttachmentRepository attachmentRepository;
     private final ComplaintRepository complaintRepository;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final AttachmentService attachmentService;
     private final ScrapRepository scrapRepository;
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
@@ -58,7 +57,7 @@ public class ComplaintService {
                 .build();
         tagRepository.save(tag);
 
-        // 민원 생성
+        // 민원 생성 및 저장 (먼저 저장)
         Complaint complaint = Complaint.builder()
                 .user(user)
                 .tag(tag)
@@ -69,9 +68,21 @@ public class ComplaintService {
                 .contentExpect(complaintRequest.getContentExpect())
                 .status(ComplaintStatus.WAITING)
                 .build();
+        complaintRepository.save(complaint); // 먼저 저장하여 ID 생성
 
-        // 민원 저장
-        complaintRepository.save(complaint);
+        // 첨부파일 엔티티 생성 및 연관 설정
+        List<Attachment> attachmentEntities = new ArrayList<>();
+        for (String imageUrl : imageUrls) {
+            Attachment attachment = Attachment.builder()
+                    .fileUrl(imageUrl)
+                    .complaint(complaint) // Complaint와 연관 설정
+                    .build();
+            attachmentRepository.save(attachment);
+            attachmentEntities.add(attachment);
+        }
+
+        // Complaint에 첨부파일 설정 (양방향 관계일 경우 필요)
+        complaint.setAttachments(attachmentEntities);
     }
 
     @Transactional

@@ -12,8 +12,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class CompositeId implements Serializable {
-
     private Long user;
     private Long complaint;
-
 }
