@@ -194,6 +194,7 @@ public class ComplaintService {
                 complaint.getContentExpect(),
                 complaint.getStatus().name(),
                 complaint.getAnswer(),
+                complaint.getAttachments().stream().map(Attachment::getFileUrl).toList(),
                 List.of(userInfoResponse)
         );
     }

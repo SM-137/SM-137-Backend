@@ -18,5 +18,6 @@ public class ComplaintDetailResponse {
     private String complaintExpect;
     private String complaintStatus;
     private String answerContent;
+    private List<String> attachmentUrls;
     private List<UserInfoResponse> user;
 }
