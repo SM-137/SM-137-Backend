@@ -242,7 +242,8 @@ public class ComplaintService {
                 complaint.getTag().getTagName(),
                 complaint.getCreatedAt(),
                 isLiked,
-                isScrapped
+                isScrapped,
+                complaint.getAttachments().stream().map(Attachment::getFileUrl).toList()
         );
     }
 

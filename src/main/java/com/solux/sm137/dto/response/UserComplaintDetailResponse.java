@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,6 +28,7 @@ public class UserComplaintDetailResponse {
     private String tag;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
-    private boolean like;
-    private boolean scrap;
+    private boolean isLiked;
+    private boolean isScrapped;
+    private List<String> attachmentUrls;
 }
