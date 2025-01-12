@@ -5,6 +5,7 @@ import com.solux.sm137.dto.request.ComplaintRequest;
 import com.solux.sm137.dto.request.ComplaintUpdateRequest;
 import com.solux.sm137.dto.request.ScrapRequest;
 import com.solux.sm137.dto.response.CategoryResponse;
+import com.solux.sm137.dto.response.GetAllComplaintResponse;
 import com.solux.sm137.dto.response.KeywordSearchResponse;
 import com.solux.sm137.dto.response.UserComplaintDetailResponse;
 import com.solux.sm137.infra.apiPayload.base.ApiResponse;
@@ -27,7 +28,6 @@ import java.util.List;
 public class ComplaintController {
 
     private final ComplaintService complaintService;
-    private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "민원 작성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -89,13 +89,20 @@ public class ComplaintController {
     }
 
     // 전체 민원 조회
-    @Operation(summary = "전체민원조회")
+    @Operation(summary = "카테고리에 해당하는 민원조회")
     @PostMapping("/category")
     public ApiResponse<List<CategoryResponse>> getComplaintCategory(
             @RequestBody CategoryRequest request
     ) {
         List<CategoryResponse> categoryResponse = complaintService.getComplaintCategory(request);
         return ApiResponse.onSuccess(categoryResponse, SuccessStatus._GET_CATEGORY_COMPLAINTS_SUCCESS);
+    }
+
+    @Operation(summary = "전체 민원 조회")
+    @GetMapping("/all")
+    public ApiResponse<List<GetAllComplaintResponse>> getAllComplaints() {
+        List<GetAllComplaintResponse> categoryResponse = complaintService.getAllComplaints();
+        return ApiResponse.onSuccess(categoryResponse, SuccessStatus._GET_ALL_COMPLAINTS_SUCCESS);
     }
 
     // 민원 키워드 검색

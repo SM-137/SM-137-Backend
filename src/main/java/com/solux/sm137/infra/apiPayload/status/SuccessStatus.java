@@ -35,7 +35,8 @@ public enum SuccessStatus implements BaseCode {
     _DELETE_COMMENT_LIKE_SUCCESS(200, "댓글 좋아요가 성공적으로 삭제되었습니다."),
     _DELETE_COMPLAINT_LIKE_SUCCESS(200, "민원 좋아요가 성공적으로 삭제되었습니다."),
     _POST_COMPLAINT_LIKE_SUCCESS(201, "민원 좋아요가 성공적으로 추가되었습니다."),
-    _PUT_COMPLAINTS_UPDATE_SUCCESS(201, "민원이 성공적으로 수정되었습니다.");
+    _PUT_COMPLAINTS_UPDATE_SUCCESS(201, "민원이 성공적으로 수정되었습니다."),
+    _GET_ALL_COMPLAINTS_SUCCESS(200, "전체 민원 조회에 성공하였습니다."),;
 
 
 
