@@ -267,6 +267,25 @@ public class ComplaintService {
     }
 
     @Transactional(readOnly = true)
+    public List<GetAllComplaintResponse> getAllComplaints() {
+        List<Complaint> complaints = complaintRepository.findAll();
+        if (complaints.isEmpty()) {
+            return null;
+        }
+        return complaints.stream()
+                .map(complaint -> new GetAllComplaintResponse(
+                        complaint.getId(),
+                        complaint.getTag().getTagName(),
+                        complaint.getCategory().getCategoryName(),
+                        complaint.getStatus(),
+                        complaint.getTitle(),
+                        complaint.getContentProb(),
+                        complaint.getComplaintLikes().size(),
+                        complaint.getScraps().size()))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<KeywordSearchResponse> getComplaintKeyword(String keyword) {
         List<Complaint> complaints = complaintRepository.findByKeyword(keyword).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         if (complaints.isEmpty()) {
