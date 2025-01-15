@@ -151,7 +151,7 @@ public class ComplaintService {
     @Transactional(readOnly = true)
     public List<ManagerComplaintResponse> getComplaintList() {
         // 모든 민원 리스트를 조회
-        List<Complaint> complaints = complaintRepository.findAll();
+        List<Complaint> complaints = complaintRepository.findAllByOrderByCreatedAtDesc();
 
         // 민원 목록을 ManagerComplaintResponse로 변환
         return complaints.stream()
@@ -250,7 +250,7 @@ public class ComplaintService {
 
     @Transactional(readOnly = true)
     public List<CategoryResponse> getComplaintCategory(CategoryRequest request) {
-        List<Complaint> complaints = complaintRepository.findByCategoryName(request.getCategoryName()).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+        List<Complaint> complaints = complaintRepository.findByCategoryNameOrderByCreatedAtDesc(request.getCategoryName()).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         if (complaints.isEmpty()) {
             return null;
         }
@@ -268,7 +268,7 @@ public class ComplaintService {
 
     @Transactional(readOnly = true)
     public List<GetAllComplaintResponse> getAllComplaints() {
-        List<Complaint> complaints = complaintRepository.findAll();
+        List<Complaint> complaints = complaintRepository.findAllByOrderByCreatedAtDesc();
         if (complaints.isEmpty()) {
             return null;
         }
@@ -287,7 +287,7 @@ public class ComplaintService {
 
     @Transactional(readOnly = true)
     public List<KeywordSearchResponse> getComplaintKeyword(String keyword) {
-        List<Complaint> complaints = complaintRepository.findByKeyword(keyword).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
+        List<Complaint> complaints = complaintRepository.findByKeywordOrderByCreatedAtDesc(keyword).orElseThrow(() -> new BusinessException(FailureStatus._NOT_FOUND));
         if (complaints.isEmpty()) {
             return null;
         }
