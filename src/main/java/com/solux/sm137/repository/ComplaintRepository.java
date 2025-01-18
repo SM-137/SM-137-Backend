@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 @Repository
 public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
-    Optional<List<Complaint>> findByUser(User user);
+    Optional<List<Complaint>> findByUserOrderByCreatedAtDesc(User user);
     Optional<Complaint> findById(Long id);
 
     @Query("SELECT c FROM Complaint c JOIN c.category Category WHERE Category.categoryName = :categoryName")
