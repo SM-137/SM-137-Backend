@@ -25,7 +25,7 @@ public class SecurityConfig {
     private static final String[] ALLOWED_URIS = {
             "/", "/css/**", "/images/**", "/js/**", "/favicon.ico",
             "/api/user/**",
-            "/api/manager/complaint/**",
+            "/api/manager/**",
             "/api/complaints/**",
             "/api/google/login",
             "/swagger-ui/**",
@@ -57,7 +57,7 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService)
                         )
                         .successHandler(oAuth2SuccessHandler)
-                        .defaultSuccessUrl("/api/google/login", true) // 로그인 성공 후 리디렉션
+                        //.defaultSuccessUrl("/api/google/login", true) // 로그인 성공 후 리디렉션
                 );
 
         return http.build();
