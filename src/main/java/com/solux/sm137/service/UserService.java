@@ -68,7 +68,7 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
         // 민원 목록 가져오기
-        List<Complaint> complaints = complaintRepository.findByUser(user).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        List<Complaint> complaints = complaintRepository.findByUserOrderByCreatedAtDesc(user).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
         // 민원 목록을 MyComplaintResponse로 변환
         return complaints.stream()
@@ -98,7 +98,7 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
         // 민원 목록 가져오기
-        List<Complaint> complaints = complaintRepository.findByUser(user).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        List<Complaint> complaints = complaintRepository.findByUserOrderByCreatedAtDesc(user).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
         // 민원 목록을 MyComplaintResponse로 변환
         return complaints.stream()
@@ -125,7 +125,7 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
         // 스크랩 목록 가져오기
-        List<Scrap> scraps = scrapRepository.findByUser(user).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
+        List<Scrap> scraps = scrapRepository.findByUserOrderByCreatedAtDesc(user).orElseThrow(() -> new BusinessException(FailureStatus._USER_NOT_FOUND));
 
         // 스크랩 목록을 ScrapResponse로 변환
         return scraps.stream()

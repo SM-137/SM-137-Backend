@@ -15,7 +15,7 @@ import java.util.Optional;
 @Transactional
 public interface ScrapRepository extends JpaRepository<Scrap, CompositeId> {
 
-    Optional<List<Scrap>> findByUser(User user);
     Scrap save(Scrap scrap);
     Optional<Scrap> findById(CompositeId compositeId);
+    Optional<List<Scrap>> findByUserOrderByCreatedAtDesc(User user);
 }
