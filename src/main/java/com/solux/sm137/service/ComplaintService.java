@@ -262,7 +262,8 @@ public class ComplaintService {
                         complaint.getTitle(),
                         complaint.getContentProb(),
                         complaint.getComplaintLikes().size(),
-                        complaint.getScraps().size()))
+                        complaint.getScraps().size(),
+                        complaint.getCreatedAt()))
                 .collect(Collectors.toList());
     }
 
@@ -281,7 +282,8 @@ public class ComplaintService {
                         complaint.getTitle(),
                         complaint.getContentProb(),
                         complaint.getComplaintLikes().size(),
-                        complaint.getScraps().size()))
+                        complaint.getScraps().size(),
+                        complaint.getCreatedAt()))
                 .collect(Collectors.toList());
     }
 
