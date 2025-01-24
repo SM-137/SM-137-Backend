@@ -92,7 +92,7 @@ public class ComplaintController {
     @Operation(summary = "카테고리에 해당하는 민원조회")
     @PostMapping("/category")
     public ApiResponse<List<CategoryResponse>> getComplaintCategory(
-            @RequestBody CategoryRequest request
+            @RequestBody @Valid CategoryRequest request
     ) {
         List<CategoryResponse> categoryResponse = complaintService.getComplaintCategory(request);
         return ApiResponse.onSuccess(categoryResponse, SuccessStatus._GET_CATEGORY_COMPLAINTS_SUCCESS);
