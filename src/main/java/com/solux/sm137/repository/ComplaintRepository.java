@@ -27,8 +27,8 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
     Optional<List<Complaint>> findByCategoryNameOrderByCreatedAtDesc(@Param("categoryName") String categoryName);
 
     @Query(value = "SELECT * FROM complaint c " +
-            "WHERE MATCH(title, content_prob, content_dir, content_expect) " +
-            "AGAINST(:keyword IN NATURAL LANGUAGE MODE) ORDER BY c.created_at DESC",
+            "WHERE CONCAT_WS(' ', c.title, c.content_prob, c.content_dir, c.content_expect) LIKE %:keyword% " +
+            "ORDER BY c.created_at DESC",
             nativeQuery = true)
     Optional<List<Complaint>> findByKeywordOrderByCreatedAtDesc(@Param("keyword") String keyword);
 
