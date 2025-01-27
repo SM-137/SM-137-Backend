@@ -30,7 +30,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         );
 
         // 프론트엔드 리다이렉트 URL 설정
-        String frontendUrl = "http://localhost:5173/SM-137-Frontend/auth/callback";
+        String frontendUrl = "http://localhost:5173/auth/callback";
+        if (frontendUrl == null || frontendUrl.isEmpty()) {
+            frontendUrl = "https://sm137.netlify.app/auth/callback";
+        }
         String redirectUrl = frontendUrl + "?token=" + jwtToken;
 
         // JSON 응답 전송 및 리다이렉션
