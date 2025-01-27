@@ -38,8 +38,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         // JWT를 쿠키로 설정
         Cookie jwtCookie = new Cookie("JWT_TOKEN", jwtToken);
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setSecure(false);  // HTTPS에서만 전송, 로컬에서는 false로 설정 가능
+        jwtCookie.setHttpOnly(false);
+        jwtCookie.setSecure(false);
         jwtCookie.setPath("/");    // 애플리케이션 전체에서 사용 가능
         jwtCookie.setMaxAge(30 * 24 * 60 * 60);
         response.addCookie(jwtCookie);
