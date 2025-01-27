@@ -70,7 +70,7 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "http://localhost:5174",
                 "https://sm-137.github.io",
-                "https://sm137.netlify.app/auth/callback"
+                "https://sm137.netlify.app"
         )); // 허용할 Origin
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")); // 허용할 HTTP 메서드
         configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
