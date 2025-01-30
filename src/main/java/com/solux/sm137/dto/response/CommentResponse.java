@@ -14,6 +14,7 @@ public class CommentResponse {
     private String userEmail;
     private String content;
     private Boolean isLiked;
+    private int likeCount;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 }
