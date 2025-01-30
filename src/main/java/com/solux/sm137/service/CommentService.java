@@ -10,6 +10,7 @@ import com.solux.sm137.infra.apiPayload.status.FailureStatus;
 import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
 import com.solux.sm137.infra.exception.ComplaintNotFoundException;
 import com.solux.sm137.infra.exception.UserNotFoundException;
+import com.solux.sm137.repository.CommentLikeRepository;
 import com.solux.sm137.repository.CommentRepository;
 import com.solux.sm137.repository.ComplaintRepository;
 import com.solux.sm137.repository.UserRepository;
@@ -28,6 +29,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final ComplaintRepository complaintRepository;
     private final UserRepository userRepository;
+    private final CommentLikeRepository commentLikeRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
     // 댓글 작성
@@ -61,14 +63,16 @@ public class CommentService {
         List<Comment> comments = commentRepository.findByComplaintId(complaintId);
 
         return comments.stream().map(comment -> {
-                    boolean isLiked = comment.getCommentLikes().stream()
-                            .anyMatch(like -> like.getUser().getId().equals(user.getId()));
+                    boolean isLiked = commentLikeRepository.existsByUserAndComment(user, comment); // ✅ 좋아요 여부 확인
+                    int likeCount = commentLikeRepository.countByComment(comment); // ✅ 좋아요 개수 조회
+
                     return new CommentResponse(
                             comment.getId(),
                             comment.getUser().getId(),
                             comment.getUser().getEmail(),
                             comment.getContent(),
                             isLiked,
+                            likeCount,
                             comment.getCreatedAt()
                     );
                 })
