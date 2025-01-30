@@ -25,7 +25,7 @@ public class SecurityConfig {
     private static final String[] ALLOWED_URIS = {
             "/", "/css/**", "/images/**", "/js/**", "/favicon.ico",
             "/api/user/**",
-            "/api/manager/complaint/**",
+            "/api/manager/**",
             "/api/complaints/**",
             "/api/google/login",
             "/swagger-ui/**",
@@ -57,7 +57,6 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService)
                         )
                         .successHandler(oAuth2SuccessHandler)
-                        .defaultSuccessUrl("/api/google/login", true) // 로그인 성공 후 리디렉션
                 );
 
         return http.build();
@@ -68,7 +67,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
-                "https://sm-137.github.io"
+                "http://localhost:5174",
+                "https://sm-137.github.io",
+                "https://sm137.netlify.app"
         )); // 허용할 Origin
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")); // 허용할 HTTP 메서드
         configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용

@@ -40,10 +40,10 @@ public class Complaint extends BaseTimeEntity {
     @Column(nullable = false)
     private String contentProb;
 
-    @Column(nullable = false)
+
     private String contentDir;
 
-    @Column(nullable = false)
+
     private String contentExpect;
 
     @Enumerated(EnumType.STRING)
