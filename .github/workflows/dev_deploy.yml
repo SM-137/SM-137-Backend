@@ -33,7 +33,7 @@ jobs:
           arguments: build
 
       - name: Upload build artifact  # 빌드된 아티팩트 업로드
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sm137Server
           path: build/libs/*.jar
