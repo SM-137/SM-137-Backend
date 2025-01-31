@@ -1,8 +1,6 @@
 package com.solux.sm137.infra.apiPayload.handler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solux.sm137.infra.common.jwt.JwtTokenProvider;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +10,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -39,10 +36,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         log.info("Generated JWT token: {}", jwtToken);
 
         // 프론트엔드 리다이렉트 URL 설정
-        String frontendUrl = "http://localhost:5173/auth/callback";
-        if (frontendUrl == null || frontendUrl.isEmpty()) {
-            frontendUrl = "https://sm137.netlify.app/auth/callback";
-        }
+        String frontendUrl = "https://sm137.netlify.app/auth/callback";
         String redirectUrl = frontendUrl + "?token=" + jwtToken;
         response.sendRedirect(redirectUrl);
     }
