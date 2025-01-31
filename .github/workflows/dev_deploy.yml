@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - name: Download build artifact  # 이전 단계에서 업로드한 아티팩트 다운로드
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sm137Server
           path: build/libs/
