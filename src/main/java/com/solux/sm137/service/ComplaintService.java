@@ -228,8 +228,10 @@ public class ComplaintService {
         Complaint complaint = complaintOptional.get();
         boolean isLiked = complaintRepository.existsLikeByComplaintAndUser(complaint, user);
         boolean isScrapped = complaintRepository.existsScrapByComplaintAndUser(complaint, user);
+        boolean isOwner = complaint.getUser().equals(user);
 
         return new UserComplaintDetailResponse(
+                isOwner,
                 complaint.getId(),
                 complaint.getStatus(),
                 complaint.getTitle(),
