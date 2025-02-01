@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class UserComplaintDetailResponse {
+    private Boolean isWriter;
     private Long complaintId;
     private ComplaintStatus complaintStatus;
     private String complaintTitle;
